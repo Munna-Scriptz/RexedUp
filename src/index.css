@@ -1,0 +1,48 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+@import "tailwindcss";
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.2rem;
+}
+
+/* -------------- Themes ----------------- */
+@theme {
+  --color-bg: #070b12;
+  --color-primary: #3b82f6;
+  --color-bg-card: #101722;
+  --color-bg-card-hover: #151f2d;
+  --color-secondary: #06b6d4;
+
+  --color-text-light: #f8fafc;
+  --color-text-muted: #94a3b8;
+
+  --color-link-blue: #60a5fa;
+  --color-green-up: #22c55e;
+  --color-red-down: #ff3b30;
+
+  --color-border: #1e293b;
+
+  /* Blue → Cyan */
+  --color-gradient: linear-gradient(135deg, #2563eb, #06b6d4);
+}
+omg {
+  --color-bg: #070b12;
+  --color-primary: #3b82f6;
+  --color-bg-card: #101722;
+  --color-bg-card-hover: #151f2d;
+  --color-secondary: #06b6d4;
+
+  --color-text-light: #f8fafc;
+  --color-text-muted: #94a3b8;
+
+  --color-link-blue: #60a5fa;
+  --color-green-up: #22c55e;
+  --color-red-down: #ff3b30;
+
+  --color-border: #1e293b;
+
+  /* Blue → Cyan */
+  --color-gradient: linear-gradient(135deg, #2563eb, #06b6d4);
+}

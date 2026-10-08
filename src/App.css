@@ -1,0 +1,18 @@
+/* -------------------- Common css --------------------- */
+body {
+  font-family: "Inter", sans-serif;
+  color: white;
+  background-color: var(--color-bg);
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ===== Custom Scrollbar ===== */
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #ff1a226b #270202;
+}
