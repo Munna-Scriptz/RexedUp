@@ -6,7 +6,7 @@ export function newLayer(S, over) {
     const template = S.bg && TEMPLATES.find((t) => t.id === S.bg.id);
     const positions = template && template.textPositions;
     const position = (positions && positions[S.layers.length]) || DEFAULT_TEXT_POSITIONS[S.layers.length % DEFAULT_TEXT_POSITIONS.length];
-    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: template ? template.size ?? 14 : 14, color: "#ffffff", glow: "#06b6d4", strength: 80, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, fit: true, _b: null };
+    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: template ? template.size ?? 14 : 14, color: "#ffffff", glow: "#06b6d4", strength: 80, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, highlightLast: null, fit: true, _b: null };
     for (const k in over) L[k] = over[k];
     return L;
 }
@@ -41,7 +41,7 @@ function layout(c, L, W, H) {
     let y = -tot / 2; lines.forEach((l) => { l.y = y + l.h / 2; y += l.h; });
     return { lines, w: mxw, h: tot, sp };
 }
-function drawLine(c, L, str, y, size, sp, intensity) {
+function drawLine(c, L, str, y, size, sp, intensity, highlightLast) {
     const st = L.style, glow = L.glow, col = L.color;
     c.lineJoin = "round"; c.miterLimit = 2;
     const reset = () => { c.shadowBlur = 0; c.shadowOffsetX = 0; c.shadowOffsetY = 0; c.shadowColor = "rgba(0,0,0,0)"; };
@@ -77,8 +77,32 @@ function drawLine(c, L, str, y, size, sp, intensity) {
         c.save(); c.globalAlpha *= .85; c.translate(-d, 0); fill("#ff2a6d"); c.restore();
         c.save(); c.globalAlpha *= .85; c.translate(d, 0); fill(glow); c.restore();
         c.shadowColor = glow; c.shadowBlur = intensity * size * .12; fill(col); reset();
+    } else if (st === "plain") {
+        fill(col);
     }
     reset();
+    if (highlightLast && L.highlightLast) {
+        const chars = graphemes(str);
+        let wordEnd = -1;
+        chars.forEach((char, index) => {
+            if (/[\p{L}\p{N}]/u.test(char)) wordEnd = index;
+        });
+        if (wordEnd >= 0) {
+            let wordStart = wordEnd;
+            while (wordStart > 0 && /[\p{L}\p{N}]/u.test(chars[wordStart - 1])) wordStart--;
+            const align = L.align || "left";
+            let x = align === "left" ? 0 : align === "right" ? -measure(c, str, sp) : -measure(c, str, sp) / 2;
+            for (let index = 0; index < wordStart; index++) {
+                x += c.measureText(chars[index]).width + sp;
+            }
+            c.save();
+            c.translate(x, 0);
+            c.textAlign = "left";
+            c.fillStyle = L.highlightLast;
+            drawStr(c, chars.slice(wordStart, wordEnd + 1).join(""), y, sp, false, "left");
+            c.restore();
+        }
+    }
 }
 function drawLayer(c, L, W, H, ui) {
     if (!L.text || !L.text.trim()) { if (ui) L._b = null; return; }
@@ -86,7 +110,10 @@ function drawLayer(c, L, W, H, ui) {
     c.save();
     c.translate(L.x * W, L.y * H); c.rotate(L.rot * Math.PI / 180);
     c.globalAlpha = L.opacity / 100; c.textBaseline = "middle";
-    lay.lines.forEach((l) => { c.font = fontStr(L, l.size); drawLine(c, L, l.str, l.y, l.size, lay.sp * l.size, intensity); });
+    lay.lines.forEach((l, index) => {
+        c.font = fontStr(L, l.size);
+        drawLine(c, L, l.str, l.y, l.size, lay.sp * l.size, intensity, index === lay.lines.length - 1);
+    });
     c.restore();
     if (ui) {
         const align = L.align || "left";

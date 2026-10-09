@@ -11,7 +11,7 @@ import Navbar from "../components/common/Navbar.jsx";
 /* ===================================================================== */
 export default function Home() {
     const [, force] = useReducer((n) => n + 1, 0);
-    const cvRef = useRef(null), txtRef = useRef(null), fileRef = useRef(null);
+    const cvRef = useRef(null), txtRef = useRef(null), mobileTxtRef = useRef(null), fileRef = useRef(null);
     const [tab, setTab] = useState("text");
     const [search, setSearch] = useState("");
     const [over, setOver] = useState(false);
@@ -34,7 +34,7 @@ export default function Home() {
         };
         const first = newLayer(S, { text: TEMPLATES[0].text, ...TEMPLATES[0].look });
         S.layers.push(first); S.sel = first.id;
-        R.current = { S, base: null, fin: null, ctx: null, raf: 0, queued: false, exporting: false, busy: false, ptrs: {}, dragging: false, lastP: null, pinch: null, fxQ: false, toastT: 0, resUrl: null, resBlob: null };
+        R.current = { S, base: null, fin: null, ctx: null, raf: 0, queued: false, exporting: false, busy: false, ptrs: {}, dragging: false, lastP: null, pinch: null, fxQ: false, toastT: 0, resUrl: null, resBlob: null, lastTap: null, tapCandidate: null };
     }
     const r = R.current, S = r.S;
     const cur = () => S.layers.find((l) => l.id === S.sel) || null;
@@ -148,6 +148,12 @@ export default function Home() {
     /* ----- layers ----- */
     const setL = (k, v) => { const l = cur(); if (l) { l[k] = v; sync(); } };
     const selectLayer = (id) => { S.sel = id; sync(); };
+    const focusTextEditor = () => {
+        const editor = window.matchMedia("(max-width: 680px)").matches ? mobileTxtRef.current : txtRef.current;
+        if (!editor) return;
+        editor.focus();
+        editor.setSelectionRange(editor.value.length, editor.value.length);
+    };
     const addLayer = () => {
         const c = cur();
         const l = newLayer(S, { text: "NEW TEXT", glow: c ? c.glow : "#06b6d4", font: c ? c.font : "Anton", style: c ? c.style : "glow" });
@@ -194,19 +200,24 @@ export default function Home() {
     /* ----- templates ----- */
     const pickTemplate = (t) => {
         S.bg = { kind: "tpl", id: t.id, img: null };
-        const c = cur();
-        if (c) {
-            c.text = t.text;
-            c.glow = "#06b6d4";
-            for (const k in t.look) c[k] = t.look[k];
-            c.allCaps = t.allCaps;
-            c.shrinkAbove = t.shrinkAbove;
-            c.align = t.textAlignment;
-            c.size = t.size ?? 14;
-            const position = t.textPositions ? t.textPositions[0] : DEFAULT_TEXT_POSITIONS[0];
-            c.x = position.x; c.y = position.y;
-            loadFont(c.font, redraw);
+        S.layers = [];
+        for (const [index, entry] of (t.texts || [t.text]).entries()) {
+            const text = typeof entry === "string" ? entry : entry.text;
+            const position = t.textPositions?.[index] || DEFAULT_TEXT_POSITIONS[index % DEFAULT_TEXT_POSITIONS.length];
+            const layer = newLayer(S, {
+                ...t.look,
+                text,
+                size: typeof entry === "string" ? (t.size ?? 14) : (entry.size ?? t.size ?? 14),
+                allCaps: t.allCaps,
+                shrinkAbove: t.shrinkAbove,
+                align: t.textAlignment,
+                x: typeof entry === "string" ? position.x : (entry.x ?? position.x),
+                y: typeof entry === "string" ? position.y : (entry.y ?? position.y),
+            });
+            S.layers.push(layer);
+            loadFont(layer.font, redraw);
         }
+        S.sel = S.layers[0]?.id ?? null;
         S.dirty = false;
         setPickedPosition(null);
         rebuildBase(); force();
@@ -258,13 +269,24 @@ export default function Home() {
             setPickedPosition(position);
             return;
         }
+        const p = pt(e);
+        const h = hit(p);
+        const now = Date.now();
+        const lastTap = r.lastTap;
+        if (e.pointerType === "touch" && h && lastTap && lastTap.layerId === h.id && now - lastTap.time < 400 && Math.hypot(p.cx - lastTap.x, p.cy - lastTap.y) < 32) {
+            r.lastTap = null;
+            if (h.id !== S.sel) selectLayer(h.id);
+            focusTextEditor();
+            return;
+        }
+        r.tapCandidate = e.pointerType === "touch" && h ? { pointerId: e.pointerId, layerId: h.id, x: p.cx, y: p.cy } : null;
         try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) { }
         S.showOverlay = true;
         redraw();
-        r.ptrs[e.pointerId] = pt(e);
-        const n = Object.keys(r.ptrs).length, p = r.ptrs[e.pointerId];
+        r.ptrs[e.pointerId] = p;
+        const n = Object.keys(r.ptrs).length;
         if (n === 1) {
-            const h = hit(p); if (h && h.id !== S.sel) selectLayer(h.id);
+            if (h && h.id !== S.sel) selectLayer(h.id);
             r.dragging = true; r.lastP = p; e.currentTarget.classList.add("dragging");
         } else if (n === 2) {
             const c = cur(), k = Object.keys(r.ptrs), a = r.ptrs[k[0]], b = r.ptrs[k[1]];
@@ -275,6 +297,11 @@ export default function Home() {
     const onMove = (e) => {
         if (!r.ptrs[e.pointerId]) return;
         r.ptrs[e.pointerId] = pt(e);
+        if (r.tapCandidate && r.tapCandidate.pointerId === e.pointerId &&
+            Math.hypot(r.ptrs[e.pointerId].cx - r.tapCandidate.x, r.ptrs[e.pointerId].cy - r.tapCandidate.y) > 12) {
+            r.tapCandidate = null;
+            r.lastTap = null;
+        }
         const c = cur(); if (!c) return;
         if (Object.keys(r.ptrs).length >= 2 && r.pinch) {
             const k = Object.keys(r.ptrs), a = r.ptrs[k[0]], b = r.ptrs[k[1]];
@@ -292,11 +319,17 @@ export default function Home() {
         S.dirty = true; redraw();
     };
     const onUp = (e) => {
+        if (r.tapCandidate && r.tapCandidate.pointerId === e.pointerId) {
+            if (e.type === "pointerup") {
+                r.lastTap = { ...r.tapCandidate, time: Date.now() };
+            }
+            r.tapCandidate = null;
+        }
         delete r.ptrs[e.pointerId];
         const n = Object.keys(r.ptrs).length;
         if (n < 2) r.pinch = null;
         if (n === 0) { r.dragging = false; e.currentTarget.classList.remove("dragging"); S.guides = { x: false, y: false }; S.showOverlay = false; redraw(); }
-        else if (n === 1) { r.lastP = r.ptrs[Object.keys(r.ptrs)[0]]; r.dragging = true; }
+        else if (n === 1) { r.lastTap = null; r.tapCandidate = null; r.lastP = r.ptrs[Object.keys(r.ptrs)[0]]; r.dragging = true; }
     };
 
     /* ----- boot ----- */
@@ -358,6 +391,19 @@ export default function Home() {
                             <div className="viewport" aria-label="Meme canvas">
                                 <canvas ref={cvRef} className={"cv" + (positionTool ? " position-picking" : "")} width={1280} height={720}
                                     onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
+                            </div>
+                            <div className="mobile-text-editor">
+                                <label className="lbl" htmlFor="mobile-txt">Edit text <span className="lbl nocase">Double-tap text on the image to type</span></label>
+                                <textarea
+                                    id="mobile-txt"
+                                    ref={mobileTxtRef}
+                                    rows={3}
+                                    placeholder="Type your meme text"
+                                    disabled={dis}
+                                    value={L ? L.text : ""}
+                                    onChange={(e) => { const c = cur(); if (c) { c.text = e.target.value; S.dirty = true; sync(); } }}
+                                    className="!text-sm"
+                                />
                             </div>
                             <div className="position-console hidden lg:block">
                                 <div className="row">
