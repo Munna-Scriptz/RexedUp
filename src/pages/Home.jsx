@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
-import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES, loadTemplateImage } from "../data/memeTemplates.js";
+import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES } from "../data/memeTemplates.js";
 import { encodeGIF } from "../lib/meme/gifEncoder.js";
-import { loadFont, newLayer, renderScene } from "../lib/meme/canvasEngine.js";
+import { loadFont, loadTemplateImage, newLayer, renderScene } from "../lib/meme/canvasEngine.js";
 import { Slider, Svg, Thumb } from "../components/meme/EditorPrimitives.jsx";
 import "../styles/memeEditor.css";
 
@@ -26,7 +26,7 @@ export default function Home() {
             layers: [], sel: null, nextId: 1,
             fx: { brightness: 0, contrast: 0, saturation: 0, blur: 0, dim: 0, vignette: 0 },
             bg: { kind: "tpl", id: "shadow", img: null },
-            gifW: 480, dirty: false, guides: { x: false, y: false },
+            gifW: 480, dirty: false, guides: { x: false, y: false }, showOverlay: false,
         };
         const first = newLayer(S, { text: TEMPLATES[0].text, ...TEMPLATES[0].look });
         S.layers.push(first); S.sel = first.id;
@@ -194,9 +194,16 @@ export default function Home() {
         if (c && !S.dirty) {
             c.text = t.text;
             for (const k in t.look) c[k] = t.look[k];
-            const position = t.textPositions ? t.textPositions[0] : DEFAULT_TEXT_POSITIONS[0];
-            c.x = position.x; c.y = position.y;
-            loadFont(c.font, redraw);
+        }
+        if (c) {
+            c.allCaps = t.allCaps;
+            c.shrinkAbove = t.shrinkAbove;
+            c.align = t.textAlignment;
+            if (!S.dirty) {
+                const position = t.textPositions ? t.textPositions[0] : DEFAULT_TEXT_POSITIONS[0];
+                c.x = position.x; c.y = position.y;
+                loadFont(c.font, redraw);
+            }
         }
         rebuildBase(); force();
     };
@@ -248,6 +255,8 @@ export default function Home() {
             return;
         }
         try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) { }
+        S.showOverlay = true;
+        redraw();
         r.ptrs[e.pointerId] = pt(e);
         const n = Object.keys(r.ptrs).length, p = r.ptrs[e.pointerId];
         if (n === 1) {
@@ -282,16 +291,8 @@ export default function Home() {
         delete r.ptrs[e.pointerId];
         const n = Object.keys(r.ptrs).length;
         if (n < 2) r.pinch = null;
-        if (n === 0) { r.dragging = false; e.currentTarget.classList.remove("dragging"); S.guides = { x: false, y: false }; redraw(); }
+        if (n === 0) { r.dragging = false; e.currentTarget.classList.remove("dragging"); S.guides = { x: false, y: false }; S.showOverlay = false; redraw(); }
         else if (n === 1) { r.lastP = r.ptrs[Object.keys(r.ptrs)[0]]; r.dragging = true; }
-    };
-    const onViewportKey = (e) => {
-        const c = cur(); if (!c) return;
-        const st = e.shiftKey ? .03 : .005; let used = true;
-        if (e.key === "ArrowLeft") c.x -= st; else if (e.key === "ArrowRight") c.x += st;
-        else if (e.key === "ArrowUp") c.y -= st; else if (e.key === "ArrowDown") c.y += st;
-        else if (e.key === "Delete" || e.key === "Backspace") { deleteLayer(); } else used = false;
-        if (used) { e.preventDefault(); const k = cur(); if (k) { k.x = Math.max(0, Math.min(1, k.x)); k.y = Math.max(0, Math.min(1, k.y)); } redraw(); }
     };
 
     /* ----- boot ----- */
@@ -366,7 +367,7 @@ export default function Home() {
                                     <span>Drag anywhere on the image to move the selected text. Pinch with two fingers to resize and rotate.</span>
                                 </div>
                             </div>
-                            <div className="viewport" tabIndex={0} aria-label="Meme canvas. Arrow keys nudge the selected text." onKeyDown={onViewportKey}>
+                            <div className="viewport" aria-label="Meme canvas">
                                 <canvas ref={cvRef} className={"cv" + (positionTool ? " position-picking" : "")} width={1280} height={720}
                                     onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
                             </div>
@@ -465,7 +466,7 @@ export default function Home() {
                                 </div>
                                 <div>
                                     <div className="field-head"><label className="lbl" htmlFor="txt">Text content</label><span className="lbl nocase">One line per row</span></div>
-                                    <textarea id="txt" ref={txtRef} rows={2} placeholder="Type your meme text" disabled={dis}
+                                    <textarea id="txt" ref={txtRef} rows={3} placeholder="Type your meme text" disabled={dis}
                                         value={L ? L.text : ""} onChange={(e) => { const c = cur(); if (c) { c.text = e.target.value; S.dirty = true; sync(); } }} />
                                     <div className="row" style={{ marginTop: 8 }}>
                                         {PHRASES.map((t) => (
@@ -499,7 +500,7 @@ export default function Home() {
                                 </div>
                                 <div className="sep" />
                                 <div className="toggles">
-                                    {[["upper", "All caps"], ["shrink", "Shrink lines above the last one"], ["fit", "Auto-fit to image width"]].map(([k, label]) => (
+                                    {[["allCaps", "All caps"], ["shrinkAbove", "Shrink lines above the last one"], ["fit", "Auto-fit to image width"]].map(([k, label]) => (
                                         <label key={k} className="toggle">{label}
                                             <input type="checkbox" checked={L ? !!L[k] : false} disabled={dis} onChange={(e) => setL(k, e.target.checked)} />
                                         </label>
@@ -584,7 +585,6 @@ export default function Home() {
                 </div>
 
                 <footer>
-                    <span>Shortcuts on the canvas: <kbd>Arrow keys</kbd> nudge, <kbd>Shift</kbd> nudges more, <kbd>Delete</kbd> removes the selected text.</span>
                     <span>Rendered locally in your browser.</span>
                 </footer>
             </main>

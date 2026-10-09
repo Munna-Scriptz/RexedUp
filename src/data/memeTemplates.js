@@ -1,4 +1,5 @@
 import megumiBackground from "../assets/megumiBackground.png";
+import kenjakuAndYuki from "../assets/memeBg/kenjakuAndYuki.png";
 
 /* ---------- data ---------- */
 export const FONTS = [
@@ -9,23 +10,10 @@ export const FONTS = [
 export const FONT_W = {};
 FONTS.forEach((f) => { FONT_W[f[0]] = f[1]; });
 export const STYLES = [["glow", "Glow"], ["neon", "Neon"], ["classic", "Classic"], ["manga", "Manga"], ["outline", "Outline"], ["gradient", "Gradient"], ["glitch", "Glitch"]];
-export const PHRASES = ["HELL YEAH", "Did you say potential?", "Nah, I'd win", "BRUH 💀", "Absolute Cinema 🖐️🗿🤚", "With this treasure..."];
+export const PHRASES = ["HELL YEAH", "Did you say potential", "Nah, I'd win", "BRUH", "Absolute Cinema 🖐️🗿🤚", "With this treasure...", "What a\n larp"];
 export const GLOWS = ["#06b6d4", "#38bdf8", "#3b82f6", "#a855f7", "#ff2d95", "#ff4d4d", "#ffb020", "#a3e635", "#ffffff"];
-export const DEFAULT_TEXT_POSITIONS = [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }];
-const TEMPLATE_IMAGES = new Map();
+export const DEFAULT_TEXT_POSITIONS = [{ x: .05, y: .18 }];
 
-export function loadTemplateImage(src) {
-    if (!TEMPLATE_IMAGES.has(src)) {
-        TEMPLATE_IMAGES.set(src, new Promise((resolve, reject) => {
-            const image = new Image();
-            image.onload = () => resolve(image);
-            image.onerror = () => reject(new Error("Template image failed to load"));
-            image.src = src;
-            if (image.complete && image.naturalWidth) resolve(image);
-        }));
-    }
-    return TEMPLATE_IMAGES.get(src);
-}
 
 // Add meme images and their default text positions here.
 export const TEMPLATES = [
@@ -33,64 +21,85 @@ export const TEMPLATES = [
         id: "shadow",
         name: "Shadow Domain",
         tags: ["megumi", "shadow", "dark", "cyan", "hell yeah"],
-        text: "DID YOU SAY\nPOTENTIAL?",
+        text: "Did you say\npotential",
         look: { style: "gradient", glow: "#3b82f6", color: "#ffffff", font: "Anton" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: 0.0572, y: 0.8534 }, { x: 0.2871, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: 0.0572, y: 0.8534 }],
     },
     {
-        id: "void",
-        name: "Infinite Void",
-        tags: ["gojo", "void", "blue", "nah id win", "domain"],
-        text: "NAH, I'D WIN",
-        look: { style: "neon", glow: "#3b82f6", color: "#ffffff", font: "Bebas Neue" },
-        image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        id: "pain",
+        name: "What a Pain",
+        tags: ["Kenjaku", "pain", "manga", "what a pain", "domain"],
+        text: "What \n a \n larp!!",
+        look: { style: "manga", color: "#ffffff", font: "Bangers" },
+        allCaps: true,
+        shrinkAbove: false,
+        textAlignment: "center",
+        image: kenjakuAndYuki,
+        textPositions: [{ x: 0.5136, y: 0.5184 }],
     },
     {
         id: "black",
         name: "Pitch Black",
         tags: ["gigachad", "chad", "meme", "classic", "black", "plain"],
-        text: "AVERAGE CODE ENTHUSIAST",
+        text: "Average code enthusiast",
         look: { style: "classic", glow: "#ffffff", color: "#ffffff", font: "Anton" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "manga",
         name: "Manga Burst",
         tags: ["manga", "losers", "comic", "panel", "potential"],
-        text: "DID YOU SAY POTENTIAL?",
+        text: "Did you say potential?",
         look: { style: "manga", glow: "#ff2d2d", color: "#ffffff", font: "Bangers" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "city",
         name: "Neon City",
         tags: ["cyberpunk", "neon", "futuristic", "city", "override"],
-        text: "SYSTEM OVERRIDE",
+        text: "System override",
         look: { style: "neon", glow: "#06b6d4", color: "#ffffff", font: "Orbitron" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "synth",
         name: "Synth Sunset",
         tags: ["synthwave", "retro", "sunset", "grid", "80s"],
-        text: "ABSOLUTE CINEMA",
+        text: "Absolute cinema",
         look: { style: "gradient", glow: "#ff2d95", color: "#ffe066", font: "Russo One" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "storm",
         name: "Storm Bolt",
         tags: ["lightning", "storm", "electric", "dark"],
-        text: "WITH THIS TREASURE...",
+        text: "With this treasure...",
         look: { style: "glow", glow: "#a78bfa", color: "#ffffff", font: "Black Ops One" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "aurora",
@@ -98,25 +107,34 @@ export const TEMPLATES = [
         tags: ["gradient", "aurora", "soft", "colorful"],
         text: "Main character energy",
         look: { style: "gradient", glow: "#ff7ad9", color: "#ffffff", font: "Pacifico" },
+        allCaps: false,
+        shrinkAbove: false,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "paper",
         name: "Paper White",
         tags: ["plain", "white", "clean", "classic"],
-        text: "WHEN THE BUILD PASSES",
+        text: "When the build passes",
         look: { style: "classic", glow: "#000000", color: "#ffffff", font: "Anton" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
     {
         id: "crimson",
         name: "Crimson Eclipse",
         tags: ["red", "eclipse", "sukuna", "curse", "moon", "bruh"],
-        text: "BRUH 💀",
+        text: "Bruh 💀",
         look: { style: "glitch", glow: "#ff4d4d", color: "#ffffff", font: "Bangers" },
+        allCaps: true,
+        shrinkAbove: true,
+        textAlignment: "left",
         image: megumiBackground,
-        textPositions: [{ x: .05, y: .18 }, { x: .05, y: .82 }, { x: .05, y: .5 }],
+        textPositions: [{ x: .05, y: .18 }],
     },
 ];

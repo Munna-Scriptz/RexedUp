@@ -1,11 +1,12 @@
 import { DEFAULT_TEXT_POSITIONS, FONT_W, TEMPLATES } from "../../data/memeTemplates.js";
+const TEMPLATE_IMAGES = new Map();
 
 /* ---------- canvas text engine (pure functions) ---------- */
 export function newLayer(S, over) {
     const template = S.bg && TEMPLATES.find((t) => t.id === S.bg.id);
     const positions = template && template.textPositions;
     const position = (positions && positions[S.layers.length]) || DEFAULT_TEXT_POSITIONS[S.layers.length % DEFAULT_TEXT_POSITIONS.length];
-    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: 14, color: "#ffffff", glow: "#06b6d4", strength: 80, style: "glow", align: "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, upper: true, shrink: true, fit: true, _b: null };
+    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: 14, color: "#ffffff", glow: "#06b6d4", strength: 80, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, fit: true, _b: null };
     for (const k in over) L[k] = over[k];
     return L;
 }
@@ -24,11 +25,12 @@ function drawStr(c, str, y, sp, stroke, align) {
     if (!sp) { stroke ? c.strokeText(str, 0, y) : c.fillText(str, 0, y); return; }
     const width = measure(c, str, sp);
     let x = align === "left" ? 0 : align === "right" ? -width : -width / 2;
+    c.textAlign = "left";
     graphemes(str).forEach((ch) => { stroke ? c.strokeText(ch, x, y) : c.fillText(ch, x, y); x += c.measureText(ch).width + sp; });
 }
 function layout(c, L, W, H) {
     const base = L.size / 100 * H, raw = L.text.split("\n"), sp = L.spacing / 100;
-    const lines = raw.map((s, i) => ({ str: L.upper ? s.toUpperCase() : s, size: (L.shrink && raw.length > 1 && i < raw.length - 1) ? base * .65 : base }));
+    const lines = raw.map((s, i) => ({ str: L.allCaps ? s.toUpperCase() : s, size: (L.shrinkAbove && raw.length > 1 && i < raw.length - 1) ? base * .65 : base }));
     const wd = (l, size) => { c.font = fontStr(L, size); return measure(c, l.str, sp * size); };
     let f = 1;
     const align = L.align || "left";
@@ -98,6 +100,7 @@ function drawLayer(c, L, W, H, ui) {
     }
 }
 function drawOverlay(c, W, H, S) {
+    if (!S.showOverlay) return;
     const L = S.layers.find((l) => l.id === S.sel); if (!L || !L._b) return;
     const b = L._b, u = W / 1280 * 1.4 + .6;
     c.save(); c.translate(b.cx, b.cy); c.rotate(b.rot * Math.PI / 180);
@@ -122,4 +125,18 @@ export function renderScene(c, W, H, o, S, fin) {
 export function loadFont(n, cb) {
     if (n === "Impact" || typeof document === "undefined" || !document.fonts) return;
     document.fonts.load(FONT_W[n] + ' 48px "' + n + '"').then(cb, () => { });
+}
+
+
+export function loadTemplateImage(src) {
+    if (!TEMPLATE_IMAGES.has(src)) {
+        TEMPLATE_IMAGES.set(src, new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error("Template image failed to load"));
+            image.src = src;
+            if (image.complete && image.naturalWidth) resolve(image);
+        }));
+    }
+    return TEMPLATE_IMAGES.get(src);
 }
