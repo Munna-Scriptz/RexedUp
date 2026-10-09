@@ -1,10 +1,12 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
+import { FaGithub } from "react-icons/fa";
 import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES } from "../data/memeTemplates.js";
 import { encodeGIF } from "../lib/meme/gifEncoder.js";
 import { loadFont, loadTemplateImage, newLayer, renderScene } from "../lib/meme/canvasEngine.js";
 import { Slider, Svg, Thumb } from "../components/meme/EditorPrimitives.jsx";
 import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
+import Navbar from "../components/common/Navbar.jsx";
 
 /* ===================================================================== */
 export default function Home() {
@@ -340,23 +342,7 @@ export default function Home() {
 
     return (
         <div className="mms">
-            <header className="top">
-                <div className="wrap">
-                    <div className="brand">
-                        <div className="mark" aria-hidden="true">R</div>
-                        <div>
-                            <h1>RexedUp</h1>
-                            <p>Drag to place text, export PNG or GIF</p>
-                        </div>
-                    </div>
-                    <div className="top-actions">
-                        <button className="btn sm" type="button" onClick={surprise}>
-                            <Svg><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" /></Svg>
-                            <span>Surprise me</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
+            <Navbar surprise={surprise}/>
 
             <main className="wrap">
                 <div className="app">
@@ -589,8 +575,18 @@ export default function Home() {
                     </aside>
                 </div>
 
-                <footer>
+                <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5 text-xs text-slate-400">
                     <span>Rendered locally in your browser.</span>
+                    <a
+                        className="inline-flex items-center gap-1.5 font-medium text-slate-300 transition hover:text-cyan-300"
+                        href="https://github.com/Munna-Scriptz"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                    >
+                        <span>Made by</span>
+                        <span className="font-semibold text-slate-100">Munna-Scriptz</span>
+                        <FaGithub size={14} aria-hidden="true" />
+                    </a>
                 </footer>
             </main>
 
