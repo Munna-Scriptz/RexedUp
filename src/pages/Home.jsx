@@ -3,6 +3,7 @@ import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES } from
 import { encodeGIF } from "../lib/meme/gifEncoder.js";
 import { loadFont, loadTemplateImage, newLayer, renderScene } from "../lib/meme/canvasEngine.js";
 import { Slider, Svg, Thumb } from "../components/meme/EditorPrimitives.jsx";
+import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
 
 /* ===================================================================== */
@@ -18,6 +19,7 @@ export default function Home() {
     const [prog, setProg] = useState(null);
     const [positionTool, setPositionTool] = useState(false);
     const [pickedPosition, setPickedPosition] = useState(null);
+    const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
     // Mutable engine state lives in a ref; React re-renders the controls via force().
     const R = useRef(null);
@@ -191,20 +193,20 @@ export default function Home() {
     const pickTemplate = (t) => {
         S.bg = { kind: "tpl", id: t.id, img: null };
         const c = cur();
-        if (c && !S.dirty) {
-            c.text = t.text;
-            for (const k in t.look) c[k] = t.look[k];
-        }
         if (c) {
+            c.text = t.text;
+            c.glow = "#06b6d4";
+            for (const k in t.look) c[k] = t.look[k];
             c.allCaps = t.allCaps;
             c.shrinkAbove = t.shrinkAbove;
             c.align = t.textAlignment;
-            if (!S.dirty) {
-                const position = t.textPositions ? t.textPositions[0] : DEFAULT_TEXT_POSITIONS[0];
-                c.x = position.x; c.y = position.y;
-                loadFont(c.font, redraw);
-            }
+            c.size = t.size ?? 14;
+            const position = t.textPositions ? t.textPositions[0] : DEFAULT_TEXT_POSITIONS[0];
+            c.x = position.x; c.y = position.y;
+            loadFont(c.font, redraw);
         }
+        S.dirty = false;
+        setPickedPosition(null);
         rebuildBase(); force();
     };
     const surprise = () => {
@@ -371,7 +373,7 @@ export default function Home() {
                                 <canvas ref={cvRef} className={"cv" + (positionTool ? " position-picking" : "")} width={1280} height={720}
                                     onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
                             </div>
-                            <div className="position-console">
+                            <div className="position-console hidden lg:block">
                                 <div className="row">
                                     <button className="btn sm" type="button" aria-pressed={positionTool}
                                         onClick={() => { setPositionTool((active) => !active); setPickedPosition(null); }}>
@@ -411,7 +413,7 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                        <div className="card note">
+                        <div className="card note !hidden sm:!inline-flex">
                             <Svg><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></Svg>
                             <div><b>Everything stays on your device</b>Images and text are rendered on this page and never uploaded. To post to GIPHY, make the GIF, save it, then use the upload link.</div>
                         </div>
@@ -433,6 +435,9 @@ export default function Home() {
                                 <span className="lbl">Meme templates <span className="count">{tplList.length}/{TEMPLATES.length}</span></span>
                                 <input type="text" className="strip-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search…" autoComplete="off" aria-label="Search templates" />
                             </div>
+                            <button className="template-picker-trigger" type="button" onClick={() => setTemplatePickerOpen(true)}>
+                                See all templates <span aria-hidden="true">→</span>
+                            </button>
                             <div className="strip" role="list">
                                 {tplList.map((t) => (
                                     <button key={t.id} type="button" role="listitem" className="tpl" title={t.name}
@@ -588,6 +593,15 @@ export default function Home() {
                     <span>Rendered locally in your browser.</span>
                 </footer>
             </main>
+
+            {templatePickerOpen && (
+                <TemplatePickerModal
+                    templates={TEMPLATES}
+                    selectedId={S.bg.kind === "tpl" ? S.bg.id : null}
+                    onClose={() => setTemplatePickerOpen(false)}
+                    onSelect={pickTemplate}
+                />
+            )}
 
             {result && (
                 <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="mms-ovTitle" onClick={(e) => { if (e.target === e.currentTarget) closeResult(); }}>
