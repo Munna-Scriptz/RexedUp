@@ -4,6 +4,8 @@ import isagiBg from "../assets/memeBg/isagi.png";
 import todoCry from "../assets/memeBg/todo-cry.png";
 import yuji from "../assets/memeBg/yuji.png";
 import gojoIdwin from "../assets/memeBg/gojo-idWin.png";
+import meAndMy from "../assets/memeBg/meAndMy.png";
+import coveringMouth from "../assets/memeBg/coveringMouth.png";
 
 /* ---------- data ---------- */
 export const FONTS = [
@@ -98,5 +100,31 @@ export const TEMPLATES = [
         textAlignment: "center",
         image: yuji,
         textPositions: [{ x: 0.1965, y: 0.5440 }],
+    },
+    {
+        id: "meAndMy",
+        name: "Me and my",
+        tags: ["tiktok", "stickers", "meme", "real", "funny"],
+        text: "Just me\nand my\nlikes",
+        size: 16,
+        look: { style: "plain", color: "#ffffff", font: "Oswald" },
+        allCaps: true,
+        shrinkAbove: false,
+        textAlignment: "left",
+        image: meAndMy,
+        textPositions: [{ x: 0.0851, y: 0.4343 }],
+    },
+    {
+        id: "coveringMouth",
+        name: "Me and my",
+        tags: ["tiktok", "stickers", "meme", "covering", "mouth"],
+        text: "this might be the worst \n \n video of all time 😭",
+        size: 8,
+        look: { style: "manga", color: "#facc15", font: "Oswald" },
+        allCaps: false,
+        shrinkAbove: false,
+        textAlignment: "left",
+        image: coveringMouth,
+        textPositions: [{ x: 0.0361, y: 0.1507 }],
     },
 ];
