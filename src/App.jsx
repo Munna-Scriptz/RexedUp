@@ -4,6 +4,7 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 // ── Layouts ──────────────
 import LayoutOne from './layout/LayoutOne'
 import Home from './pages/Home'
+import { Analytics } from '@vercel/analytics/react'
 
 // ── Default pages ────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ const App = () => {
 
   return (
     <>
+      <Analytics />
       <RouterProvider router={myRoute} />
     </>
   )
