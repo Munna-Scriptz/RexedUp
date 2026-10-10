@@ -1,4 +1,4 @@
-import { DEFAULT_TEXT_POSITIONS, FONT_W, TEMPLATES } from "../../data/memeTemplates.js";
+import { DEFAULT_TEXT_POSITIONS, FONT_W, TEMPLATES, WATERMARK_ENABLED, WATERMARK_TEXT } from "../../data/memeTemplates.js";
 const TEMPLATE_IMAGES = new Map();
 
 /* ---------- canvas text engine (pure functions) ---------- */
@@ -143,10 +143,26 @@ function drawOverlay(c, W, H, S) {
         c.restore();
     }
 }
+function drawWatermark(c, W, H) {
+    if (!WATERMARK_ENABLED) return;
+    const padding = Math.max(6, W * .018);
+    const size = Math.max(9, W * .016);
+    c.save();
+    c.globalAlpha = .48;
+    c.font = `600 ${size}px system-ui, sans-serif`;
+    c.textAlign = "right";
+    c.textBaseline = "bottom";
+    c.shadowColor = "rgba(0,0,0,.8)";
+    c.shadowBlur = size * .3;
+    c.fillStyle = "#ffffff";
+    c.fillText(WATERMARK_TEXT, W - padding, H - padding);
+    c.restore();
+}
 export function renderScene(c, W, H, o, S, fin) {
     c.setTransform(1, 0, 0, 1, 0, 0);
     c.clearRect(0, 0, W, H); c.drawImage(fin, 0, 0, W, H);
     S.layers.forEach((L) => drawLayer(c, L, W, H, o.ui));
+    drawWatermark(c, W, H);
     if (o.ui) drawOverlay(c, W, H, S);
 }
 export function loadFont(n, cb) {

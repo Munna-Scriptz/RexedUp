@@ -1,11 +1,13 @@
 import megumiBackground from "../assets/megumiBackground.png";
 import kenjakuAndYuki from "../assets/memeBg/kenjakuAndYuki.png";
+import imNextKashimo from "../assets/memeBg/imNextKashimo.png";
 import isagiBg from "../assets/memeBg/isagi.png";
 import todoCry from "../assets/memeBg/todo-cry.png";
 import yuji from "../assets/memeBg/yuji.png";
 import gojoIdwin from "../assets/memeBg/gojo-idWin.png";
 import meAndMy from "../assets/memeBg/meAndMy.png";
 import coveringMouth from "../assets/memeBg/coveringMouth.png";
+import anIqCrow from "../assets/memeBg/anIqCrow.png";
 
 /* ---------- data ---------- */
 export const FONTS = [
@@ -19,6 +21,8 @@ export const STYLES = [["glow", "Glow"], ["neon", "Neon"], ["classic", "Classic"
 export const PHRASES = ["HELL YEAH", "Did you say potential", "Nah, I'd win", "BRUH", "Absolute Cinema 🖐️🗿🤚", "With this treasure...", "What a\n larp"];
 export const GLOWS = ["#06b6d4", "#38bdf8", "#3b82f6", "#a855f7", "#ff2d95", "#ff4d4d", "#ffb020", "#a3e635", "#ffffff"];
 export const DEFAULT_TEXT_POSITIONS = [{ x: .05, y: .18 }];
+export const WATERMARK_ENABLED = true;
+export const WATERMARK_TEXT = "RexedUp";
 
 
 // Add meme images and their default text positions here.
@@ -48,6 +52,19 @@ export const TEMPLATES = [
         textAlignment: "center",
         image: kenjakuAndYuki,
         textPositions: [{ x: 0.5136, y: 0.5184 }],
+    },
+    {
+        id: "imNext",
+        name: "Im up next",
+        tags: ["Kashimo", "jjk", "manga", "im next", "cullingGame"],
+        text: "i'm up\nnext if\nhe cums.",
+        size: 8,
+        look: { style: "plain", color: "#000000", font: "Bangers" },
+        allCaps: true,
+        shrinkAbove: false,
+        textAlignment: "center",
+        image: imNextKashimo,
+        textPositions: [{ x: 0.8262, y: 0.3603 }],
     },
     {
         id: "id_win",
@@ -116,7 +133,7 @@ export const TEMPLATES = [
     },
     {
         id: "coveringMouth",
-        name: "Me and my",
+        name: "This might be",
         tags: ["tiktok", "stickers", "meme", "covering", "mouth"],
         text: "this might be the worst \n \n video of all time 😭",
         size: 8,
@@ -126,5 +143,21 @@ export const TEMPLATES = [
         textAlignment: "left",
         image: coveringMouth,
         textPositions: [{ x: 0.0361, y: 0.1507 }],
+    },
+    {
+        id: "anIq",
+        name: "An iq",
+        tags: ["tiktok", "stickers", "meme", "crow", "iq"],
+        texts: [
+            { text: "An iq\n", size: 12, color: "#ffffff" },
+            { text: "too low?", size: 13, color: "#facc15" },
+        ],
+        size: 12,
+        look: { style: "manga", color: "#ffffff", font: "Comic Neue" },
+        allCaps: true,
+        shrinkAbove: false,
+        textAlignment: "left",
+        image: anIqCrow,
+        textPositions: [{ x: 0.0327, y: 0.8145 }, { x: 0.0327, y: 0.8952 }],
     },
 ];

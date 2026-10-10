@@ -208,6 +208,7 @@ export default function Home() {
                 ...t.look,
                 text,
                 size: typeof entry === "string" ? (t.size ?? 14) : (entry.size ?? t.size ?? 14),
+                color: typeof entry === "string" ? t.look.color : (entry.color ?? t.look.color),
                 allCaps: t.allCaps,
                 shrinkAbove: t.shrinkAbove,
                 align: t.textAlignment,
