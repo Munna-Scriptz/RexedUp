@@ -1,4 +1,5 @@
 import megumiBackground from "../assets/megumiBackground.png";
+import erenSea from "../assets/memeBg/erenSea.png";
 import kenjakuAndYuki from "../assets/memeBg/kenjakuAndYuki.png";
 import imNextKashimo from "../assets/memeBg/imNextKashimo.png";
 import isagiBg from "../assets/memeBg/isagi.png";
@@ -11,14 +12,14 @@ import anIqCrow from "../assets/memeBg/anIqCrow.png";
 
 /* ---------- data ---------- */
 export const FONTS = [
-    ["Inter", 400], ["Anton", 400], ["Bebas Neue", 400], ["Bangers", 400], ["Comic Neue", 400], ["Permanent Marker", 400],
+    ["Inter", 400], ["Anton", 400], ["Bebas Neue", 400], ["Bangers", 400], ["Comic Neue", 400], ["Tinos", 200], ["Permanent Marker", 400],
     ["Orbitron", 900], ["Press Start 2P", 400], ["Russo One", 400], ["Black Ops One", 400],
     ["Creepster", 400], ["Pacifico", 400], ["Oswald", 700], ["Archivo Black", 400], ["Impact", 400],
 ];
 export const FONT_W = {};
 FONTS.forEach((f) => { FONT_W[f[0]] = f[1]; });
 export const STYLES = [["glow", "Glow"], ["neon", "Neon"], ["classic", "Classic"], ["manga", "Manga"], ["outline", "Outline"], ["gradient", "Gradient"], ["glitch", "Glitch"], ["plain", "Plain"]];
-export const PHRASES = ["HELL YEAH", "Did you say potential", "Nah, I'd win", "BRUH", "Absolute Cinema 🖐️🗿🤚", "With this treasure...", "What a\n larp"];
+export const PHRASES = ["HELL YEAH", "sybau", "Did you say potential", "Nah, I'd win", "BRUH", "Absolute Cinema 🖐️🗿🤚", "With this treasure...", "What a\n larp"];
 export const GLOWS = ["#06b6d4", "#38bdf8", "#3b82f6", "#a855f7", "#ff2d95", "#ff4d4d", "#ffb020", "#a3e635", "#ffffff"];
 export const DEFAULT_TEXT_POSITIONS = [{ x: .05, y: .18 }];
 export const WATERMARK_ENABLED = true;
@@ -39,6 +40,19 @@ export const TEMPLATES = [
         textAlignment: "left",
         image: megumiBackground,
         textPositions: [{ x: 0.0572, y: 0.8534 }],
+    },
+    {
+        id: "erenSea",
+        name: "Eren",
+        tags: ["anime", "eren", "sea", "pain", "sad"],
+        text: "fuck",
+        size: 32,
+        look: { style: "plain", color: "#000000", font: "Tinos" },
+        allCaps: false,
+        shrinkAbove: true,
+        textAlignment: "center",
+        image: erenSea,
+        textPositions: [{ x: 0.7428, y: 0.3346 }],
     },
     {
         id: "pain",
