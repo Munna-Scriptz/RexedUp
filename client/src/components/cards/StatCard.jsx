@@ -27,24 +27,24 @@ const StatCard = ({
   const isSmall = size === "small";
 
   return (
-    <div className={`bg-white md:rounded-2xl rounded-xl border border-gray-200 duration-300 hover:shadow-lg ${className} ${isSmall ? "p-3" : "md:p-5 p-3"}`}>
+    <div className={`bg-[#0b111b] md:rounded-2xl rounded-xl border border-[#1b2638] duration-300 hover:shadow-lg ${className} ${isSmall ? "p-3" : "md:p-5 p-3"}`}>
       {isLoading ? (
         <div className="animate-pulse">
           {/* Header Skeleton */}
           <div className="flex items-center md:gap-3 gap-2">
-            <div className={`${isSmall ? "w-8 h-8 rounded-xl" : "md:w-10 w-8 md:h-10 h-8 rounded-xl"} bg-gray-200`} />
-            <div className={`h-4 bg-gray-200 rounded w-20 ${isSmall ? "mt-0.5" : "mt-0"}`} />
+            <div className={`${isSmall ? "w-8 h-8 rounded-xl" : "md:w-10 w-8 md:h-10 h-8 rounded-xl"} bg-slate-700`} />
+            <div className={`h-4 bg-slate-700 rounded w-20 ${isSmall ? "mt-0.5" : "mt-0"}`} />
           </div>
 
           {/* Content Skeleton */}
           <div className={`flex flex-col ${isSmall ? "mt-3 gap-1" : "md:mt-4 mt-2 md:gap-1.5 gap-1"}`}>
             <div className="flex items-baseline gap-2">
-              <div className={`bg-gray-200 rounded w-24 ${isSmall ? "h-6" : "md:h-8 h-6"}`} />
+              <div className={`bg-slate-700 rounded w-24 ${isSmall ? "h-6" : "md:h-8 h-6"}`} />
             </div>
 
             <div className={`flex items-center ${isSmall ? "gap-1 mt-1.5" : "gap-2 mt-2.5"}`}>
-              <div className={`bg-gray-200 rounded-full ${isSmall ? "w-10 h-4" : "w-12 h-5"}`} />
-              <div className={`bg-gray-200 rounded w-16 ${isSmall ? "h-3" : "h-3.5"}`} />
+              <div className={`bg-slate-700 rounded-full ${isSmall ? "w-10 h-4" : "w-12 h-5"}`} />
+              <div className={`bg-slate-700 rounded w-16 ${isSmall ? "h-3" : "h-3.5"}`} />
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@ const StatCard = ({
               })}
             </div>
 
-            <h3 className={`font-semibold text-gray-500 ${isSmall ? "text-xs" : "md:text-sm text-xs"}`} >
+            <h3 className={`font-semibold text-slate-400 ${isSmall ? "text-xs" : "md:text-sm text-xs"}`} >
               {title}
             </h3>
           </div>
@@ -66,12 +66,12 @@ const StatCard = ({
           {/* Content */}
           <div className={`flex flex-col ${isSmall ? "mt-3 gap-1" : "md:mt-4 mt-2 md:gap-1.5 gap-1"}`}>
             <div className="flex items-baseline gap-2">
-              <span className={`font-bold text-adminText ${isSmall ? "text-xl" : "md:text-3xl text-xl"}`} >
+              <span className={`font-bold text-slate-100 ${isSmall ? "text-xl" : "md:text-3xl text-xl"}`} >
                 {value}
               </span>
 
               {unit && (
-                <span className={`font-bold uppercase tracking-widest text-gray-400 ${isSmall ? "text-[9px]" : "md:text-xs text-[9px]"}`} >
+                <span className={`font-bold uppercase tracking-widest text-slate-500 ${isSmall ? "text-[9px]" : "md:text-xs text-[9px]"}`} >
                   {unit}
                 </span>
               )}
@@ -100,7 +100,7 @@ const StatCard = ({
                 </div>
 
                 <p
-                  className={`font-medium uppercase tracking-wider text-gray-400 ${isSmall ? "text-[8px]" : "text-[10px]"}`}
+                  className={`font-medium uppercase tracking-wider text-slate-500 ${isSmall ? "text-[8px]" : "text-[10px]"}`}
                 >
                   vs last month
                 </p>

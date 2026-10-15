@@ -1,10 +1,12 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import AdminNavbar from "../components/common/AdminNavbar";
 import Loader from "../components/common/Loader";
 import { useGetProfileQuery } from "../api";
 
 const AdminLayout = () => {
     const { data, isLoading, isError } = useGetProfileQuery();
+    const { pathname } = useLocation();
+    const isEditorPage = pathname === "/admin/upload";
 
     // if (isLoading) return <Loader />;
     // if (isError || !data?.data?.authenticated || data.data.user?.role !== "admin") {
@@ -12,9 +14,9 @@ const AdminLayout = () => {
     // }
 
     return (
-        <main className="min-h-screen bg-slate-50 text-slate-900 lg:flex">
+        <main className="min-h-screen bg-[#070b12] text-slate-100 lg:flex">
             <AdminNavbar />
-            <section className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
+            <section className={`min-w-0 flex-1 ${isEditorPage ? "p-0" : "px-4 py-6 sm:px-6 lg:px-10 lg:py-9"}`}>
                 <Outlet />
             </section>
         </main>

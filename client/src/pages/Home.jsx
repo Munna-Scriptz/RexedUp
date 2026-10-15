@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES } from "../data/memeTemplates.js";
 import { encodeGIF } from "../lib/meme/gifEncoder.js";
@@ -7,10 +7,18 @@ import { Slider, Svg, Thumb } from "../components/meme/EditorPrimitives.jsx";
 import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
 import Navbar from "../components/common/Navbar.jsx";
+import { useGetMemeTemplatesQuery } from "../api";
 
 /* ===================================================================== */
-export default function Home() {
+export default function Home({ adminMode = false, onUploadTemplate, uploadBusy = false, uploadError = "" } = {}) {
     const [, force] = useReducer((n) => n + 1, 0);
+    const { data: templateResponse } = useGetMemeTemplatesQuery();
+    const templates = useMemo(() => [
+        ...TEMPLATES,
+        ...(Array.isArray(templateResponse?.data)
+            ? templateResponse.data.map((template) => ({ ...template, id: template._id || template.id }))
+            : []),
+    ], [templateResponse]);
     const cvRef = useRef(null), txtRef = useRef(null), mobileTxtRef = useRef(null), fileRef = useRef(null);
     const [tab, setTab] = useState("text");
     const [search, setSearch] = useState("");
@@ -22,6 +30,8 @@ export default function Home() {
     const [positionTool, setPositionTool] = useState(false);
     const [pickedPosition, setPickedPosition] = useState(null);
     const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+    const [adminName, setAdminName] = useState("");
+    const [adminTags, setAdminTags] = useState("");
 
     // Mutable engine state lives in a ref; React re-renders the controls via force().
     const R = useRef(null);
@@ -87,7 +97,7 @@ export default function Home() {
             w = Math.max(2, Math.round(im.naturalWidth * sc)); h = Math.max(2, Math.round(im.naturalHeight * sc));
             r.base.width = w; r.base.height = h; r.base.getContext("2d").drawImage(im, 0, 0, w, h);
         } else {
-            const t = TEMPLATES.find((x) => x.id === S.bg.id) || TEMPLATES[0];
+            const t = templates.find((x) => x.id === S.bg.id) || TEMPLATES[0];
             let image;
             try {
                 image = await loadTemplateImage(t.image);
@@ -179,7 +189,7 @@ export default function Home() {
     const resetPosition = () => {
         const c = cur(); if (!c) return;
         const index = S.layers.indexOf(c);
-        const template = TEMPLATES.find((t) => t.id === S.bg.id);
+        const template = templates.find((t) => t.id === S.bg.id);
         const positions = template && template.textPositions;
         const position = (positions && positions[index]) || DEFAULT_TEXT_POSITIONS[index % DEFAULT_TEXT_POSITIONS.length];
         c.x = position.x; c.y = position.y; c.rot = 0;
@@ -206,12 +216,13 @@ export default function Home() {
             const position = t.textPositions?.[index] || DEFAULT_TEXT_POSITIONS[index % DEFAULT_TEXT_POSITIONS.length];
             const layer = newLayer(S, {
                 ...t.look,
+                ...(typeof entry === "object" ? entry : {}),
                 text,
                 size: typeof entry === "string" ? (t.size ?? 14) : (entry.size ?? t.size ?? 14),
                 color: typeof entry === "string" ? t.look.color : (entry.color ?? t.look.color),
-                allCaps: t.allCaps,
-                shrinkAbove: t.shrinkAbove,
-                align: t.textAlignment,
+                allCaps: typeof entry === "object" ? (entry.allCaps ?? t.allCaps) : t.allCaps,
+                shrinkAbove: typeof entry === "object" ? (entry.shrinkAbove ?? t.shrinkAbove) : t.shrinkAbove,
+                align: typeof entry === "object" ? (entry.align ?? t.textAlignment) : t.textAlignment,
                 x: typeof entry === "string" ? position.x : (entry.x ?? position.x),
                 y: typeof entry === "string" ? position.y : (entry.y ?? position.y),
             });
@@ -224,7 +235,7 @@ export default function Home() {
         rebuildBase(); force();
     };
     const surprise = () => {
-        const t = TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)];
+        const t = templates[Math.floor(Math.random() * templates.length)];
         let c = cur(); if (!c) { addLayer(); c = cur(); }
         S.dirty = false; pickTemplate(t);
         c = cur();
@@ -239,6 +250,41 @@ export default function Home() {
         im.onload = () => { S.bg = { kind: "img", id: "custom", img: im }; rebuildBase(); force(); toast("Image loaded"); };
         im.onerror = () => toast("Could not read that image. Try a PNG or JPG.");
         im.src = url;
+    };
+    const uploadTemplate = async () => {
+        if (!adminName.trim()) {
+            toast("Add a name for this meme first.");
+            return;
+        }
+        if (!onUploadTemplate || !S.layers.length) {
+            toast("Add at least one text layer before uploading.");
+            return;
+        }
+
+        const firstLayer = S.layers[0];
+        const texts = S.layers.map(({ id, _b, ...layer }) => layer);
+        await onUploadTemplate({
+            name: adminName.trim(),
+            tags: adminTags.split(",").map((tag) => tag.trim()).filter(Boolean),
+            imageDataUrl: r.fin.toDataURL("image/png"),
+            text: firstLayer.text,
+            texts,
+            look: {
+                style: firstLayer.style,
+                glow: firstLayer.glow,
+                color: firstLayer.color,
+                font: firstLayer.font,
+                strength: firstLayer.strength,
+            },
+            size: firstLayer.size,
+            textPositions: S.layers.map(({ x, y }) => ({ x, y })),
+            allCaps: firstLayer.allCaps,
+            shrinkAbove: firstLayer.shrinkAbove,
+            textAlignment: firstLayer.align || "center",
+        });
+        setAdminName("");
+        setAdminTags("");
+        toast("Meme template uploaded.");
     };
 
     /* ----- pointer interaction ----- */
@@ -361,7 +407,7 @@ export default function Home() {
 
     /* ----- derived ----- */
     const q = search.trim().toLowerCase();
-    const tplList = TEMPLATES.filter((t) => !q || t.name.toLowerCase().includes(q) || t.tags.some((x) => x.includes(q)));
+    const tplList = templates.filter((t) => !q || t.name.toLowerCase().includes(q) || t.tags.some((x) => x.includes(q)));
     const TABS = [["text", "Text"], ["style", "Style"], ["image", "Image"]];
     const onTabKey = (e, i) => {
         const n = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -376,9 +422,32 @@ export default function Home() {
 
     return (
         <div className="mms">
-            <Navbar surprise={surprise}/>
+            {!adminMode && <Navbar surprise={surprise}/>}
 
             <main className="wrap">
+                {adminMode && (
+                    <section className="card admin-upload-head">
+                        <div className="admin-upload-intro">
+                            <span className="lbl">Admin studio · Build a template</span>
+                            <h1>Design your meme</h1>
+                            <p>Choose an image, add and drag text on the canvas, then save it to the template library.</p>
+                        </div>
+                        <div className="admin-upload-fields">
+                            <label className="admin-meta-field">
+                                Meme name
+                                <input type="text" maxLength={100} value={adminName} onChange={(event) => setAdminName(event.target.value)} placeholder="e.g. Shadow Domain" />
+                            </label>
+                            <label className="admin-meta-field">
+                                Tags <span>(comma separated)</span>
+                                <input type="text" value={adminTags} onChange={(event) => setAdminTags(event.target.value)} placeholder="anime, jjk, reaction" />
+                            </label>
+                            <button className="btn primary admin-upload-submit" type="button" disabled={uploadBusy} onClick={() => uploadTemplate().catch((error) => toast(error?.message || "Could not prepare this meme for upload."))}>
+                                {uploadBusy ? "Uploading..." : "Upload template"}
+                            </button>
+                        </div>
+                        {uploadError && <p className="admin-upload-error" role="alert">{uploadError}</p>}
+                    </section>
+                )}
                 <div className="app">
                     {/* ---------- stage ---------- */}
                     <section className="stage-col" aria-label="Canvas">
@@ -446,10 +515,10 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                        <div className="card note !hidden sm:!inline-flex">
+                        {!adminMode && <div className="card note !hidden sm:!inline-flex">
                             <Svg><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></Svg>
                             <div><b>Everything stays on your device</b>Images and text are rendered on this page and never uploaded. To post to GIPHY, make the GIF, save it, then use the upload link.</div>
-                        </div>
+                        </div>}
                     </section>
 
                     {/* ---------- controls ---------- */}
@@ -465,7 +534,7 @@ export default function Home() {
                         {/* 10 meme templates: small horizontal scroll strip */}
                         <div className="strip-wrap">
                             <div className="strip-head">
-                                <span className="lbl">Meme templates <span className="count">{tplList.length}/{TEMPLATES.length}</span></span>
+                                <span className="lbl">Meme templates <span className="count">{tplList.length}/{templates.length}</span></span>
                                 <input type="text" className="strip-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search…" autoComplete="off" aria-label="Search templates" />
                             </div>
                             <button className="template-picker-trigger" type="button" onClick={() => setTemplatePickerOpen(true)}>
@@ -561,7 +630,7 @@ export default function Home() {
                                 <div>
                                     <div className="field-head"><span className="lbl">Looks</span><span className="lbl nocase">Effect, font and colors in one tap</span></div>
                                     <div className="looks">
-                                        {TEMPLATES.map((t) => (
+                                        {templates.map((t) => (
                                             <button key={t.id} className="chip" type="button" onClick={() => applyLook(t.look)}>{t.name}</button>
                                         ))}
                                     </div>
@@ -639,7 +708,7 @@ export default function Home() {
 
             {templatePickerOpen && (
                 <TemplatePickerModal
-                    templates={TEMPLATES}
+                    templates={templates}
                     selectedId={S.bg.kind === "tpl" ? S.bg.id : null}
                     onClose={() => setTemplatePickerOpen(false)}
                     onSelect={pickTemplate}

@@ -12,6 +12,8 @@ import Home from './pages/Home'
 // ── Admin pages ────────────────────────────────────────────────
 import Admin from './pages/admin/Admin'
 import AdminLogin from './pages/admin/AdminLogin'
+import AdminUpload from './pages/admin/AdminUpload'
+import AdminManage from './pages/admin/AdminManage'
 import { ApiProvider } from '@reduxjs/toolkit/query/react'
 import { globalApis } from './api/baseApi'
 
@@ -32,8 +34,8 @@ const App = () => {
 
       <Route path='/admin' element={<AdminLayout />}>
         <Route index element={<Admin />} />
-        <Route path='upload' element={<Admin />} />
-        <Route path='manage' element={<Admin />} />
+        <Route path='upload' element={<AdminUpload />} />
+        <Route path='manage' element={<AdminManage />} />
       </Route>
 
     </Route>

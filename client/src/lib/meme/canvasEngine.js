@@ -175,6 +175,7 @@ export function loadTemplateImage(src) {
     if (!TEMPLATE_IMAGES.has(src)) {
         TEMPLATE_IMAGES.set(src, new Promise((resolve, reject) => {
             const image = new Image();
+            image.crossOrigin = "anonymous";
             image.onload = () => resolve(image);
             image.onerror = () => reject(new Error("Template image failed to load"));
             image.src = src;

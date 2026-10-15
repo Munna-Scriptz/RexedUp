@@ -32,6 +32,14 @@
   .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
   .btn svg { width: 16px; height: 16px; flex: none; }
 
+  .admin-upload-head { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 20px; margin-top: 18px; padding: 18px; }
+  .admin-upload-intro h1 { margin: 7px 0 5px; color: var(--fg); font-family: var(--font-display); font-size: clamp(19px, 2vw, 26px); letter-spacing: -.04em; }
+  .admin-upload-intro p { max-width: 360px; margin: 0; color: var(--muted); font-size: 13px; }
+  .admin-upload-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: end; }
+  .admin-meta-field { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .admin-meta-field span { color: #64748b; font-weight: 400; letter-spacing: 0; text-transform: none; }
+  .admin-upload-submit { min-height: 40px; }
+  .admin-upload-error { grid-column: 1 / -1; margin: -8px 0 0; color: #ff8d9e; font-size: 12px; }
   .app { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(340px, .8fr); gap: 20px; padding-top: 20px; align-items: start; }
   .stage-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 74px); min-width: 0; display: flex; flex-direction: column; gap: 14px; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
@@ -160,6 +168,7 @@
   @media (max-width: 980px) {
     .app { grid-template-columns: minmax(0, 1fr); }
     .stage-col { position: static; }
+    .admin-upload-head { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
     .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -167,6 +176,8 @@
     .stylegrid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 680px) {
+    .admin-upload-head { gap: 14px; margin-top: 12px; padding: 14px; }
+    .admin-upload-fields { grid-template-columns: 1fr; }
     .mobile-text-editor { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
     .mobile-text-editor .lbl { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .mobile-text-editor textarea { min-height: 58px; max-height: 100px; resize: vertical; font-size: 16px; }

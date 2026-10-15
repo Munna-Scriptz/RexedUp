@@ -15,3 +15,10 @@ export {
     useCreateCategoryMutation,
     useDeleteCategoryMutation,
 } from './endpoints/categoryApi'
+
+export {
+    useGetMemeTemplatesQuery,
+    useUploadMemeTemplateMutation,
+    useUpdateMemeTemplateMutation,
+    useDeleteMemeTemplateMutation,
+} from './endpoints/memeTemplateApi'
