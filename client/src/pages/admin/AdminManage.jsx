@@ -92,7 +92,6 @@ const AdminManage = () => {
         <div className="mx-auto max-w-7xl">
             <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-400">Content</p>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-100">Manage memes</h1>
                     <p className="mt-2 text-sm text-slate-400">Search and organize the templates available in the editor.</p>
                 </div>
@@ -121,7 +120,7 @@ const AdminManage = () => {
                         {visibleMemes.map((meme) => (
                             <article key={meme._id || meme.id} className="overflow-visible rounded-2xl border border-[#1b2638] bg-[#070b12] transition hover:border-[#2b3c57]">
                                 <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl bg-[#101826]">
-                                    <img src={meme.image} alt={meme.name} className="h-full w-full object-cover" />
+                                    <img src={meme.preview || meme.image} alt={meme.name} className="h-full w-full object-cover" />
                                     <span className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-[#070b12]/85 px-2.5 py-1 text-[11px] text-slate-300">{meme.tags?.[0] || "Meme template"}</span>
                                     {meme._id && (
                                         <div className="absolute right-3 top-3">

@@ -7,8 +7,8 @@ const router = express.Router();
 const adminOnly = [authMiddleware, roleCheckMiddleware("admin")];
 
 router.get("/templates", getTemplates);
-router.post("/templates", ...adminOnly, uploadTemplate);
-router.patch("/templates/:id", ...adminOnly, updateTemplate);
-router.delete("/templates/:id", ...adminOnly, deleteTemplate);
+router.post("/templates", uploadTemplate);
+router.patch("/templates/:id", updateTemplate);
+router.delete("/templates/:id", deleteTemplate);
 
 module.exports = router;

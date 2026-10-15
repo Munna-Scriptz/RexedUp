@@ -16,7 +16,7 @@ const AdminLayout = () => {
     return (
         <main className="min-h-screen bg-[#070b12] text-slate-100 lg:flex">
             <AdminNavbar />
-            <section className={`min-w-0 flex-1 ${isEditorPage ? "p-0" : "px-4 py-6 sm:px-6 lg:px-10 lg:py-9"}`}>
+            <section className={`min-w-0 flex-1 ${isEditorPage ? "p-0" : "px-4 py-6 sm:px-6 lg:px-10"}`}>
                 <Outlet />
             </section>
         </main>

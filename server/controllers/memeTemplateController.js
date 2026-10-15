@@ -5,7 +5,7 @@ const AppError = require("../utils/AppError");
 const resHandler = require("../utils/resHandler");
 
 const uploadTemplate = AsyncHandler(async (req, res) => {
-    const { name, tags, imageDataUrl, text, texts, look, size, textPositions, allCaps, shrinkAbove, textAlignment } = req.body;
+    const { name, tags, imageDataUrl, previewDataUrl, text, texts, look, size, textPositions, allCaps, shrinkAbove, textAlignment } = req.body;
 
     if (typeof name !== "string" || !name.trim()) throw new AppError("Meme name is required", 400);
     if (name.trim().length > 100) throw new AppError("Meme name must be 100 characters or fewer", 400);
@@ -13,7 +13,12 @@ const uploadTemplate = AsyncHandler(async (req, res) => {
     if (typeof imageDataUrl !== "string" || !/^data:image\/(?:png|jpe?g|webp);base64,/.test(imageDataUrl)) {
         throw new AppError("Choose a PNG, JPG, or WebP meme image", 400);
     }
-    if (imageDataUrl.length > 11_000_000) throw new AppError("Image must be smaller than 8 MB", 413);
+    if (typeof previewDataUrl !== "string" || !/^data:image\/(?:png|jpe?g|webp);base64,/.test(previewDataUrl)) {
+        throw new AppError("Meme preview is required", 400);
+    }
+    if (imageDataUrl.length > 5_500_000 || previewDataUrl.length > 5_500_000) {
+        throw new AppError("Images must each be smaller than 4 MB", 413);
+    }
     if (!Array.isArray(texts) || !texts.length) throw new AppError("Add at least one text layer", 400);
     if (!Array.isArray(textPositions) || textPositions.length !== texts.length) throw new AppError("Text positions do not match the text layers", 400);
 
@@ -23,22 +28,38 @@ const uploadTemplate = AsyncHandler(async (req, res) => {
         resource_type: "image",
     });
 
-    const template = await memeTemplateSchema.create({
-        name: name.trim(),
-        tags: [...new Set(tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))],
-        image: imageResult.secure_url,
-        imagePublicId: imageResult.public_id,
-        text: typeof text === "string" ? text : "",
-        texts,
-        look: look && typeof look === "object" ? look : {},
-        size: Number.isFinite(Number(size)) ? Number(size) : 14,
-        textPositions,
-        allCaps: Boolean(allCaps),
-        shrinkAbove: Boolean(shrinkAbove),
-        textAlignment: ["left", "center", "right"].includes(textAlignment) ? textAlignment : "center",
-    });
+    let previewResult;
+    try {
+        previewResult = await cloudinary.uploader.upload(previewDataUrl, {
+            asset_folder: "rexedup/meme-templates",
+            folder: "meme-templates",
+            resource_type: "image",
+        });
+        const template = await memeTemplateSchema.create({
+            name: name.trim(),
+            tags: [...new Set(tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))],
+            image: imageResult.secure_url,
+            imagePublicId: imageResult.public_id,
+            preview: previewResult.secure_url,
+            previewPublicId: previewResult.public_id,
+            text: typeof text === "string" ? text : "",
+            texts,
+            look: look && typeof look === "object" ? look : {},
+            size: Number.isFinite(Number(size)) ? Number(size) : 14,
+            textPositions,
+            allCaps: Boolean(allCaps),
+            shrinkAbove: Boolean(shrinkAbove),
+            textAlignment: ["left", "center", "right"].includes(textAlignment) ? textAlignment : "center",
+        });
 
-    return resHandler.success(res, 201, "Meme template uploaded", template);
+        return resHandler.success(res, 201, "Meme template uploaded", template);
+    } catch (error) {
+        await cloudinary.uploader.destroy(imageResult.public_id, { resource_type: "image" });
+        if (previewResult?.public_id) {
+            await cloudinary.uploader.destroy(previewResult.public_id, { resource_type: "image" });
+        }
+        throw error;
+    }
 });
 
 const getTemplates = AsyncHandler(async (req, res) => {
@@ -72,7 +93,10 @@ const deleteTemplate = AsyncHandler(async (req, res) => {
     const template = await memeTemplateSchema.findById(req.params.id);
     if (!template) throw new AppError("Meme template not found", 404);
 
-    await cloudinary.uploader.destroy(template.imagePublicId, { resource_type: "image" });
+    await Promise.all([
+        cloudinary.uploader.destroy(template.imagePublicId, { resource_type: "image" }),
+        cloudinary.uploader.destroy(template.previewPublicId, { resource_type: "image" }),
+    ]);
     await template.deleteOne();
     return resHandler.success(res, 200, "Meme template deleted");
 });
