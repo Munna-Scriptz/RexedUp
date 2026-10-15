@@ -1,263 +1,123 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
-import Logo from "/rexedupInfo.png";
-import { FiGrid, FiPlusCircle,  FiSettings, FiLogOut, FiX, FiMenu } from "react-icons/fi";
+import { LayoutDashboard, LogOut, Menu, Plus, Shapes, X } from "lucide-react";
 import { useLogoutMutation } from "../../api";
+
+const navigation = [
+    { path: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+    { path: "/admin/upload", label: "Upload meme", icon: Plus },
+    { path: "/admin/manage", label: "Manage memes", icon: Shapes },
+];
 
 const AdminNavbar = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
-
-    const tabs = [
-        {
-            id: "dashboard",
-            path: "/admin",
-            label: "Dashboard",
-            icon: FiGrid,
-        },
-        {
-            id: "invest",
-            path: "/admin/upload",
-            label: "Upload meme",
-            icon: FiPlusCircle,
-        },
-        {
-            id: "settings",
-            path: "/user/settings",
-            label: "Settings",
-            icon: FiSettings,
-        },
-    ];
-
-    {/* ════════════════════ Logout ════════════════════ */ }
-    const [logout] = useLogoutMutation()
-    const navigate = useNavigate()
+    const [logoutError, setLogoutError] = useState("");
+    const [logout] = useLogoutMutation();
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
+        setLogoutError("");
         try {
-            await logout().unwrap()
-            navigate("/")
-        } catch (error) {
-            console.log(error)
+            await logout().unwrap();
+            navigate("/admin/login", { replace: true });
+        } catch {
+            setLogoutError("Could not sign out. Please try again.");
         }
-    }
+    };
+
+    const links = (mobile = false) => navigation.map(({ path, label, icon: Icon, end }) => (
+        <NavLink
+            key={path}
+            to={path}
+            end={end}
+            onClick={() => mobile && setMobileOpen(false)}
+            className={({ isActive }) => `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                isActive
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+            }`}
+        >
+            <Icon size={18} />
+            {label}
+        </NavLink>
+    ));
+
+    const signOut = (
+        <div>
+            {logoutError && <p className="mb-2 px-3 text-xs text-rose-600" role="alert">{logoutError}</p>}
+            <button
+                type="button"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-rose-50 hover:text-rose-700"
+            >
+                <LogOut size={18} />
+                Sign out
+            </button>
+        </div>
+    );
 
     return (
         <>
-            {/* ========================================================= DESKTOP SIDEBAR ========================================================= */}
-            <aside className="sticky top-0 hidden h-screen w-72 shrink-0 overflow-hidden border-r border-[#4a1717] bg-[#180101] lg:flex lg:flex-col">
-                {/* Command Center Header */}
-                <div className="relative border-b border-red-down/50 bg-gradient-to-r from-[#320707] via-[#6d1010] to-[#320707] px-5 py-5">
-                    {/* Decorative lines */}
-                    <div className="absolute bottom-0 left-0 h-px w-full bg-red-down" />
-
-                    <div className="relative flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#ff3b3b]/50 bg-red-down/15 text-[#ff3b3b]">
-                            <FiGrid size={21} />
-                        </div>
-
-                        <h2 className="mt-0.5 text-lg font-bold uppercase tracking-wide text-white">
-                            Admin Panel
-                        </h2>
+            <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
+                <div className="flex h-20 items-center gap-3 border-b border-slate-100 px-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                        <Shapes size={20} />
+                    </div>
+                    <div>
+                        <p className="font-semibold tracking-tight text-slate-900">RexedUp</p>
+                        <p className="text-xs text-slate-500">Meme studio</p>
                     </div>
                 </div>
-
-                {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin" >
-                    <div className="space-y-1">
-                        {tabs.map((item) => {
-                            const Icon = item.icon;
-
-                            return (
-                                <NavLink
-                                    key={item.id}
-                                    to={item.path}
-                                    end={item.path === "/admin"}
-                                    className={({
-                                        isActive,
-                                    }) => ` group relative flex w-full items-center gap-3 rounded-lg border px-3.5 py-3 text-sm transition-all duration-200
-                                        ${isActive
-                                            ? `border-red-down/50 bg-[#4b0909] text-white shadow-[inset_3px_0_0_#ff1a1a] `
-                                            : `border-transparent text-white/55 hover:border-[#4a1717] hover:bg-[#260606] hover:text-white `
-                                        }`}
-                                >
-                                    {({ isActive }) => (
-                                        <>
-                                            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md 
-                                                    ${isActive
-                                                    ? "bg-red-down/15"
-                                                    : "bg-[#160303] group-hover:bg-[#250606]"} `}
-                                            >
-                                                <Icon
-                                                    size={18}
-                                                    className={
-                                                        isActive ? "text-red-down" : "text-[#20b486]"
-                                                    }
-                                                />
-                                            </div>
-
-                                            <span className="font-medium">{item.label}</span>
-
-                                            {isActive && (
-                                                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#ff3030]" />
-                                            )}
-                                        </>
-                                    )}
-                                </NavLink>
-                            );
-                        })}
-                    </div>
+                <nav aria-label="Admin navigation" className="flex-1 space-y-1 px-4 py-6">
+                    {links()}
                 </nav>
-
-                {/* Logout */}
-                <div className="border-t border-[#4a1717] p-2">
-                    <button
-                        onClick={handleLogout}
-                        className="group flex w-full items-center gap-3 rounded-lg border border-transparent px-3.5 py-3 text-sm font-medium text-white/50 transition-all duration-200 hover:border-red-down/30 hover:bg-[#320707] hover:text-[#ff5c5c "
-                    >
-                        <FiLogOut
-                            size={18}
-                            className="transition-transform duration-200 group-hover:-translate-x-0.5"
-                        />
-
-                        <span>Sign Out</span>
-                    </button>
-                </div>
+                <div className="border-t border-slate-100 p-4">{signOut}</div>
             </aside>
 
-            {/* ========================================================= MOBILE HEADER ========================================================= */}
-            <div className="lg:hidden">
-                <header className="border-b border-red-down/50 bg-gradient-to-r from-[#360707] via-[#6b1010] to-[#360707]">
-                    <div className="flex h-[60px] items-center justify-between px-4">
-                        {/* Menu Button */}
-                        <button
-                            onClick={() => setMobileOpen(true)}
-                            className="flex items-center gap-3 rounded-lg border border-[#4a1717] bg-[#180303] px-3 py-2 text-white transition hover:border-red-down/50 hover:bg-[#260606] "
-                            aria-label="Open command center"
-                        >
-                            <FiMenu size={20} className="text-red-down" />
-
-                            <div className="hidden xs:block text-left">
-                                <span className="block text-[9px] font-bold uppercase text-[#ff6666]">
-                                    Member Area
-                                </span>
-
-                                <span className="block text-xs font-bold uppercase tracking-wide text-white">
-                                    Command Center
-                                </span>
-                            </div>
-                        </button>
-
-                        {/* Logo */}
-                        <div className="h-10 w-auto">
-                            <img
-                                src={Logo}
-                                alt="BitBillionaire"
-                                className="h-full w-auto object-contain"
-                            />
-                        </div>
-                    </div>
-                </header>
-            </div>
-
-            {/* ========================================================= MOBILE DRAWER ========================================================= */}
-            <div
-                className={` fixed inset-0 z-50 lg:hidden transition-all duration-300 ${mobileOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"}`}
-            >
-                {/* Overlay */}
-                <div
-                    className="absolute inset-0 bg-black/75"
-                    onClick={() => setMobileOpen(false)}
-                />
-
-                {/* Drawer */}
-                <aside
-                    className={` relative z-10 flex h-full w-[86%] max-w-[340px] flex-col overflow-hidden border-r border-[#5c1717] bg-[#0b0101] shadow-[15px_0_50px_rgba(0,0,0,0.6)] transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} `}
+            <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:hidden">
+                <div className="flex items-center gap-2 font-semibold text-slate-900">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                        <Shapes size={17} />
+                    </span>
+                    RexedUp admin
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setMobileOpen(true)}
+                    aria-label="Open navigation"
+                    className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
                 >
-                    {/* Drawer Header */}
-                    <div className="border-b border-red-down/50 bg-gradient-to-r from-[#360707] via-[#6b1010] to-[#360707]">
-                        <div className="flex items-center justify-between px-4 py-4">
-                            <div className="flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#ff4545]/50 bg-red-down/15 text-[#ff3d3d]">
-                                    <FiGrid size={18} />
-                                </div>
+                    <Menu size={21} />
+                </button>
+            </header>
 
-                                <h2 className="text-base font-bold uppercase tracking-wide text-white">
-                                    Command Center
-                                </h2>
-                            </div>
-
+            {mobileOpen && (
+                <div className="fixed inset-0 z-40 lg:hidden">
+                    <button
+                        type="button"
+                        aria-label="Close navigation"
+                        onClick={() => setMobileOpen(false)}
+                        className="absolute inset-0 bg-slate-950/40"
+                    />
+                    <aside className="relative flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+                        <div className="flex h-16 items-center justify-between border-b border-slate-100 px-5">
+                            <span className="font-semibold text-slate-900">Admin menu</span>
                             <button
+                                type="button"
                                 onClick={() => setMobileOpen(false)}
-                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-black/20 text-white/60 transition hover:border-red-down/50 hover:bg-red-down/20 hover:text-white "
-                                aria-label="Close menu"
+                                aria-label="Close navigation"
+                                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
                             >
-                                <FiX size={19} />
+                                <X size={20} />
                             </button>
                         </div>
-                    </div>
-
-                    {/* Mobile Navigation */}
-                    <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin">
-                        <div className="space-y-1">
-                            {tabs.map((item) => {
-                                const Icon = item.icon;
-
-                                return (
-                                    <NavLink
-                                        key={item.id}
-                                        to={item.path}
-                                        end={item.path === "/user"}
-                                        onClick={() => setMobileOpen(false)}
-                                        className={({ isActive }) =>
-                                            `group relative flex items-center gap-3 rounded-lg border px-2.5 py-2.5 text-sm transition-all duration-200 ${isActive
-                                                ? `border-red-down/50 bg-[#4b0909] text-white shadow-[inset_3px_0_0_#ff1a1a] `
-                                                : `border-transparent text-white/60 hover:border-[#4a1717] hover:bg-[#260606] hover:text-white `
-                                            } `
-                                        }
-                                    >
-                                        {({ isActive }) => (
-                                            <>
-                                                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md 
-                                                    ${isActive
-                                                        ? "bg-red-down/15"
-                                                        : "bg-[#160303] group-hover:bg-[#250606]"} `}
-                                                >
-                                                    <Icon
-                                                        size={17}
-                                                        className={
-                                                            isActive ? "text-red-down" : "text-[#20b486]"
-                                                        }
-                                                    />
-                                                </div>
-
-                                                <span className="font-medium">{item.label}</span>
-
-                                                {isActive && (
-                                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#ff3030]" />
-                                                )}
-                                            </>
-                                        )}
-                                    </NavLink>
-                                );
-                            })}
-                        </div>
-                    </nav>
-
-                    {/* Mobile Logout */}
-                    <div className="border-t border-[#4a1717] p-3">
-                        <button
-                            onClick={() => {
-                                setMobileOpen(false);
-                                handleLogout();
-                            }}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-down/20 bg-[#280606] px-4 py-3.5 text-sm font-semibold text-[#ff6868] transition-all duration-200 hover:border-red-down/50 hover:bg-[#420909] hover:text-[#ff8585] "
-                        >
-                            <FiLogOut size={17} />
-                            Sign Out
-                        </button>
-                    </div>
-                </aside>
-            </div>
+                        <nav aria-label="Admin navigation" className="flex-1 space-y-1 px-4 py-5">
+                            {links(true)}
+                        </nav>
+                        <div className="border-t border-slate-100 p-4">{signOut}</div>
+                    </aside>
+                </div>
+            )}
         </>
     );
 };

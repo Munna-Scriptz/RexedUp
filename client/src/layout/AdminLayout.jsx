@@ -1,26 +1,20 @@
-import React from "react";
 import { Navigate, Outlet } from "react-router";
 import AdminNavbar from "../components/common/AdminNavbar";
 import Loader from "../components/common/Loader";
 import { useGetProfileQuery } from "../api";
 
 const AdminLayout = () => {
-    const { data, isLoading } = useGetProfileQuery();
+    const { data, isLoading, isError } = useGetProfileQuery();
 
-    if (isLoading) return <Loader />
-
-    {/* ════════════════════ Auth protection ════════════════════ */ }
-    // const isAuthenticated = data?.data?.authenticated;
-    // const isAdmin = data?.data?.user?.role === "admin";
-    // if (!isAuthenticated) return <Navigate to="/login" replace />;
-    // if (!isAdmin) return <Navigate to="/user" replace />;
-
+    // if (isLoading) return <Loader />;
+    // if (isError || !data?.data?.authenticated || data.data.user?.role !== "admin") {
+    //     return <Navigate to="/admin/login" replace />;
+    // }
 
     return (
-        <main className="flex flex-col lg:flex-row">
+        <main className="min-h-screen bg-slate-50 text-slate-900 lg:flex">
             <AdminNavbar />
-
-            <section className="flex-1 pt-6 pb-10 px-4 sm:px-6 lg:px-6 bg-[url('/src/assets/decorations/investBg.jpg')]">
+            <section className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
                 <Outlet />
             </section>
         </main>

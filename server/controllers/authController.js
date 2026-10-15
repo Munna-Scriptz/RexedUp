@@ -34,7 +34,9 @@ const signin = AsyncHandler(async (req, res) => {
     if (!existingUser) return res.status(404).send({ message: `User with this email doesn't exists. Please signUp!` })
 
     // --------- Compare password 
-    if (existingUser.password != password) return res.status(400).send({ message: 'Wrong credentails' })
+    if (!(await existingUser.comparePassword(password))) {
+        return res.status(400).send({ message: 'Wrong credentials' })
+    }
 
     // ------------- JWT token and cookie
     const accToken = generateAccToken(existingUser)
@@ -54,17 +56,14 @@ const signin = AsyncHandler(async (req, res) => {
             role: existingUser.role,
         }
     })
-
-    // Success Response
-    resHandler.success(res, 200, "Login successfully completed")
 });
 
 // ========================== Logout =============================
 const logout = AsyncHandler(async (req, res) => {
     const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: "none"
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     };
 
     res.clearCookie("X-AS-TOKEN", cookieOptions);
