@@ -1,17 +1,22 @@
 import './App.css'
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router'
+import { Analytics } from '@vercel/analytics/react'
 
 // ── Layouts ──────────────
 import LayoutOne from './layout/LayoutOne'
-import Home from './pages/Home'
-import { Analytics } from '@vercel/analytics/react'
+import AdminLayout from './layout/AdminLayout'
 
 // ── Default pages ────────────────────────────────────────────────
+import Home from './pages/Home'
 
+// ── Admin pages ────────────────────────────────────────────────
+import Admin from './pages/admin/Admin'
+import { ApiProvider } from '@reduxjs/toolkit/query/react'
+import { globalApis } from './api/baseApi'
 
 // ── Auth pages ────────────────────────────────────────────────
 // ── User pages ────────────────────────────────────────────────
-// ── Admin pages ────────────────────────────────────────────────
+
 // ── Legal pages ────────────────────────────────────────────────
 
 const App = () => {
@@ -22,13 +27,21 @@ const App = () => {
         <Route index element={<Home />} />
       </Route>
 
+      <Route path='/admin' element={<AdminLayout />}>
+        <Route index element={<Admin />} />
+      </Route>
+
     </Route>
   ))
 
   return (
     <>
       <Analytics />
-      <RouterProvider router={myRoute} />
+
+      <ApiProvider api={globalApis}>
+        <RouterProvider router={myRoute} />
+      </ApiProvider>
+
     </>
   )
 }
