@@ -4,15 +4,9 @@ export { globalApis } from './baseApi'
 // ─── Endpoint Hooks ──────────────────
 export {
     useGetProfileQuery,
-    useGetVapidPublicKeyQuery,
-    useSaveSubscriptionMutation,
-    useUpdateProfileMutation,
     useCreateAccountMutation,
     useLoginMutation,
     useLogoutMutation,
-    useGetAdminUsersQuery,
-    useGetAdminUserDetailsQuery,
-    useGetAdminPaymentsQuery,
 } from './endpoints/authApi'
 
 
