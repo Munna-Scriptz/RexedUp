@@ -7,6 +7,7 @@ import { Slider, Svg, Thumb } from "../components/meme/EditorPrimitives.jsx";
 import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
 import Navbar from "../components/common/Navbar.jsx";
+import ImageWithLoader from "../components/ui/ImageWithLoader.jsx";
 
 /* ===================================================================== */
 export default function Home() {
@@ -382,7 +383,7 @@ export default function Home() {
 
     return (
         <div className="mms">
-            <Navbar surprise={surprise}/>
+            <Navbar surprise={surprise} />
 
             <main className="wrap">
                 <div className="app">
@@ -656,7 +657,7 @@ export default function Home() {
                 <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="mms-ovTitle" onClick={(e) => { if (e.target === e.currentTarget) closeResult(); }}>
                     <div className="sheet">
                         <h2 id="mms-ovTitle">{/gif$/.test(result.name) ? "Your GIF is ready" : "Your meme is ready"}</h2>
-                        <div className="pv"><img src={result.url} alt="Exported meme preview" /></div>
+                        <div className="pv"><ImageWithLoader src={result.url} alt="Exported meme preview" /></div>
                         <div className="meta">{result.meta}</div>
                         <div className="row">
                             <button className="btn primary" type="button" autoFocus onClick={() => saveBlob(result.blob, result.name, true)}>Save file</button>

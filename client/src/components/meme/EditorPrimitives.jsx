@@ -1,4 +1,4 @@
-import React from "react";
+import ImageWithLoader from "../ui/ImageWithLoader";
 
 /* ---------- small UI pieces ---------- */
 export const Svg = ({ children, sw = 2 }) => (
@@ -11,6 +11,6 @@ export const Slider = ({ id, label, val, unit = "", min, max, step, onChange, di
     </div>
 );
 export function Thumb({ t }) {
-    return <img src={t.image} alt="" />;
+    return <ImageWithLoader src={t.image} alt="" />;
 }
 
