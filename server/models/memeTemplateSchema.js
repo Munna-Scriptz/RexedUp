@@ -15,18 +15,6 @@ const memeTemplateSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    imagePublicId: {
-        type: String,
-        required: true,
-    },
-    preview: {
-        type: String,
-        required: true,
-    },
-    previewPublicId: {
-        type: String,
-        required: true,
-    },
     text: {
         type: String,
         default: "",

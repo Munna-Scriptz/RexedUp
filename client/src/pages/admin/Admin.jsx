@@ -36,7 +36,7 @@ const Dashboard = () => {
                 <div className="divide-y divide-[#1b2638]">
                     {(uploaded.length ? uploaded.slice(0, 6) : TEMPLATES.slice(-6).reverse()).map((template) => (
                         <div key={template.id || template._id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                            <img src={template.preview || template.image} alt="" className="h-11 w-11 rounded-xl bg-[#101826] object-cover" />
+                            <img src={template.image} alt="" className="h-11 w-11 rounded-xl bg-[#101826] object-cover" />
                             <div className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-medium text-slate-200">{template.name}</p>
                                 <p className="mt-0.5 truncate text-xs text-slate-500">{template.tags?.slice(0, 3).join(" · ")}</p>

@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Thumb } from "./EditorPrimitives.jsx";
+import { useGetMemeTemplatesQuery } from "../../api";
 
 export default function TemplatePickerModal({ templates, selectedId, onClose, onSelect }) {
     const [search, setSearch] = useState("");
+    const { data, isLoading, isError } = useGetMemeTemplatesQuery();
+    const databaseTemplates = Array.isArray(data?.data)
+        ? data.data.map((template) => ({
+            ...template,
+            id: template._id || template.id,
+            texts: template.texts?.length ? template.texts : [template.text || ""],
+            look: template.look || {},
+            tags: Array.isArray(template.tags) ? template.tags : [],
+        }))
+        : [];
+    const allTemplates = [...templates, ...databaseTemplates];
     const query = search.trim().toLowerCase();
-    const visibleTemplates = templates.filter((template) =>
-        !query || template.name.toLowerCase().includes(query) || template.tags.some((tag) => tag.toLowerCase().includes(query))
+    const visibleTemplates = allTemplates.filter((template) =>
+        !query || template.name.toLowerCase().includes(query) || template.tags?.some((tag) => tag.toLowerCase().includes(query))
     );
 
     useEffect(() => {
@@ -50,6 +62,8 @@ export default function TemplatePickerModal({ templates, selectedId, onClose, on
                         aria-label="Search all templates"
                         autoFocus
                     />
+                    {isLoading && <p className="template-modal-status">Loading saved templates…</p>}
+                    {isError && <p className="template-modal-status error" role="alert">Saved templates could not be loaded. Built-in templates are still available.</p>}
                     <div className="template-modal-grid" role="list" aria-label="All templates">
                         {visibleTemplates.map((template) => (
                             <button

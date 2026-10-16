@@ -236,6 +236,8 @@
   .template-modal-card:hover { border-color: var(--muted); }
   .template-modal-card[aria-pressed=true] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,214,255,.2); }
   .template-modal-empty { grid-column: 1 / -1; color: var(--muted); text-align: center; }
+  .template-modal-status { margin: 10px 0; color: var(--muted); font-size: 12px; }
+  .template-modal-status.error { color: #ff8d9e; }
   .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 60; max-width: calc(100% - 32px); padding: 11px 16px; border-radius: 12px; background: #16233a; border: 1px solid var(--line-2); box-shadow: 0 12px 40px rgba(0,0,0,.5); font-size: 13px; font-weight: 600; transition: all .22s; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 

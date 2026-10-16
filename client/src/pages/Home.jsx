@@ -87,15 +87,20 @@ export default function Home() {
             w = Math.max(2, Math.round(im.naturalWidth * sc)); h = Math.max(2, Math.round(im.naturalHeight * sc));
             r.base.width = w; r.base.height = h; r.base.getContext("2d").drawImage(im, 0, 0, w, h);
         } else {
-            const t = TEMPLATES.find((x) => x.id === S.bg.id) || TEMPLATES[0];
+            const t = TEMPLATES.find((x) => x.id === S.bg.id);
+            const imageSrc = S.bg.image || t?.image;
+            if (!imageSrc) {
+                toast("Template image is unavailable.");
+                return;
+            }
             let image;
             try {
-                image = await loadTemplateImage(t.image);
+                image = await loadTemplateImage(imageSrc);
             } catch {
                 toast("Template image could not be loaded.");
                 return;
             }
-            if (S.bg.kind !== "tpl" || S.bg.id !== t.id) return;
+            if (S.bg.kind !== "tpl" || (S.bg.id !== t?.id && S.bg.image !== imageSrc)) return;
             const scale = Math.min(1, 1280 / Math.max(image.naturalWidth, image.naturalHeight));
             w = Math.max(2, Math.round(image.naturalWidth * scale));
             h = Math.max(2, Math.round(image.naturalHeight * scale));
@@ -199,19 +204,21 @@ export default function Home() {
 
     /* ----- templates ----- */
     const pickTemplate = (t) => {
-        S.bg = { kind: "tpl", id: t.id, img: null };
+        S.bg = { kind: "tpl", id: t.id, image: t.image, img: null };
         S.layers = [];
         for (const [index, entry] of (t.texts || [t.text]).entries()) {
+            const settings = typeof entry === "object" && entry !== null ? entry : {};
             const text = typeof entry === "string" ? entry : entry.text;
             const position = t.textPositions?.[index] || DEFAULT_TEXT_POSITIONS[index % DEFAULT_TEXT_POSITIONS.length];
             const layer = newLayer(S, {
                 ...t.look,
+                ...settings,
                 text,
                 size: typeof entry === "string" ? (t.size ?? 14) : (entry.size ?? t.size ?? 14),
                 color: typeof entry === "string" ? t.look.color : (entry.color ?? t.look.color),
-                allCaps: t.allCaps,
-                shrinkAbove: t.shrinkAbove,
-                align: t.textAlignment,
+                allCaps: settings.allCaps ?? t.allCaps,
+                shrinkAbove: settings.shrinkAbove ?? t.shrinkAbove,
+                align: settings.align ?? t.textAlignment,
                 x: typeof entry === "string" ? position.x : (entry.x ?? position.x),
                 y: typeof entry === "string" ? position.y : (entry.y ?? position.y),
             });

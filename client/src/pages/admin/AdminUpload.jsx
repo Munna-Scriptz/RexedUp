@@ -206,15 +206,10 @@ const AdminUpload = () => {
         }
 
         const firstLayer = state.layers[0];
-        const previewCanvas = document.createElement("canvas");
-        previewCanvas.width = editor.final.width;
-        previewCanvas.height = editor.final.height;
-        renderScene(previewCanvas.getContext("2d"), previewCanvas.width, previewCanvas.height, { ui: false }, state, editor.final);
         const template = {
             name: name.trim(),
             tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-            imageDataUrl: editor.final.toDataURL("image/jpeg", 0.9),
-            previewDataUrl: previewCanvas.toDataURL("image/jpeg", 0.9),
+            imageDataUrl: editor.base.toDataURL("image/jpeg", 0.9),
             text: firstLayer.text,
             texts: state.layers.map(({ id, _b, ...layer }) => layer),
             look: {
