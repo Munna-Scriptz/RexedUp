@@ -1,4 +1,4 @@
-const AsyncHandler = require("../utils/asyncHandler")
+const AsyncHandler = require("../utils/AsyncHandler")
 const userSchema = require("../models/userSchema")
 const { generateAccToken } = require("../services/tokens")
 const resHandler = require("../utils/resHandler")

@@ -1,5 +1,5 @@
 const AppError = require("../utils/AppError")
-const AsyncHandler = require("../utils/asyncHandler")
+const AsyncHandler = require("../utils/AsyncHandler")
 const { verifyToken } = require("../services/tokens")
 
 const authMiddleware = AsyncHandler(async (req, res, next) => {

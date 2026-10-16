@@ -1,5 +1,5 @@
 const memeTemplateSchema = require("../models/memeTemplateSchema");
-const AsyncHandler = require("../utils/asyncHandler");
+const AsyncHandler = require("../utils/AsyncHandler");
 const AppError = require("../utils/AppError");
 const resHandler = require("../utils/resHandler");
 const { cloudDelete } = require("../services/cloudUpload");
