@@ -2,7 +2,6 @@ const AsyncHandler = require("../utils/asyncHandler")
 const userSchema = require("../models/userSchema")
 const { generateAccToken } = require("../services/tokens")
 const resHandler = require("../utils/resHandler")
-const AppError = require("../utils/AppError")
 
 // ========================== Sign Up ===========================
 const signup = AsyncHandler(async (req, res) => {

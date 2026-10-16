@@ -5,13 +5,13 @@ import { useGetProfileQuery } from "../api";
 
 const AdminLayout = () => {
     const { data, isLoading, isError } = useGetProfileQuery();
+    console.log(data)
     const { pathname } = useLocation();
     const isEditorPage = pathname === "/admin/upload";
 
-    // if (isLoading) return <Loader />;
-    // if (isError || !data?.data?.authenticated || data.data.user?.role !== "admin") {
-    //     return <Navigate to="/admin/login" replace />;
-    // }
+    if (isLoading) return <Loader />;
+    if (isError || !data?.data?.authenticated || data.data.user?.role !== "admin") return <Navigate to="/admin/login" replace />
+
 
     return (
         <main className="min-h-screen bg-[#070b12] text-slate-100 lg:flex">

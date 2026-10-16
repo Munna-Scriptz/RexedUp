@@ -1,19 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { signup, signin, logout, profile } = require('../controllers/authController')
-const { verifyToken } = require('../services/tokens')
-
-const optionalAuthMiddleware = (req, res, next) => {
-    const token = req.cookies?.["X-AS-TOKEN"];
-    if (token) {
-        try {
-            req.user = verifyToken(token);
-        } catch {
-            req.user = null;
-        }
-    }
-    next();
-}
+const authMiddleware = require('../middlewares/authMiddleware')
 
 // -------------------------- Post
 router.post('/signup', signup)
@@ -22,7 +10,7 @@ router.post('/logout', logout)
 // -------------------------- Put
 
 // -------------------------- Get
-router.get('/profile', optionalAuthMiddleware, profile)
+router.get('/profile', authMiddleware, profile)
 
 // --------------------------
 
