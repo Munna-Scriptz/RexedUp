@@ -6,7 +6,7 @@ export function newLayer(S, over) {
     const template = S.bg && TEMPLATES.find((t) => t.id === S.bg.id);
     const positions = template && template.textPositions;
     const position = (positions && positions[S.layers.length]) || DEFAULT_TEXT_POSITIONS[S.layers.length % DEFAULT_TEXT_POSITIONS.length];
-    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: template ? template.size ?? 14 : 14, color: "#ffffff", glow: "#06b6d4", strength: 80, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, highlightLast: null, fit: true, _b: null };
+    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: template ? template.size ?? 14 : 14, color: "#ffffff", glow: "#06b6d4", strength: 80, strokeColor: "#000000", strokeOpacity: 0, strokeWidth: 0, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, highlightLast: null, fit: true, _b: null };
     for (const k in over) L[k] = over[k];
     return L;
 }
@@ -47,6 +47,12 @@ function drawLine(c, L, str, y, size, sp, intensity, highlightLast) {
     const reset = () => { c.shadowBlur = 0; c.shadowOffsetX = 0; c.shadowOffsetY = 0; c.shadowColor = "rgba(0,0,0,0)"; };
     const fill = (color) => { c.fillStyle = color; drawStr(c, str, y, sp, false, L.align || "left"); };
     const stroke = (color, wd) => { c.strokeStyle = color; c.lineWidth = wd; drawStr(c, str, y, sp, true, L.align || "left"); };
+    if (L.strokeOpacity > 0 && L.strokeWidth > 0) {
+        c.save();
+        c.globalAlpha *= L.strokeOpacity / 100;
+        stroke(L.strokeColor || "#000000", size * L.strokeWidth / 100);
+        c.restore();
+    }
     if (st === "glow") {
         c.shadowColor = glow; c.shadowOffsetX = 0; c.shadowOffsetY = 0;
         c.shadowBlur = intensity * size * .5; fill(col);

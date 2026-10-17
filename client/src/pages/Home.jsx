@@ -4,6 +4,7 @@ import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES } from
 import { encodeGIF } from "../lib/meme/gifEncoder.js";
 import { loadFont, loadTemplateImage, newLayer, renderScene } from "../lib/meme/canvasEngine.js";
 import { Slider, Svg, Thumb } from "../components/meme/EditorPrimitives.jsx";
+import TextAppearanceControls from "../components/meme/TextAppearanceControls.jsx";
 import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
 import Navbar from "../components/common/Navbar.jsx";
@@ -176,6 +177,7 @@ export default function Home() {
             ? {
                 font: c.font, size: c.size, color: c.color, glow: c.glow, strength: c.strength,
                 style: c.style, opacity: c.opacity, spacing: c.spacing, allCaps: c.allCaps,
+                strokeColor: c.strokeColor, strokeOpacity: c.strokeOpacity, strokeWidth: c.strokeWidth,
                 shrinkAbove: c.shrinkAbove, highlightLast: c.highlightLast, fit: c.fit,
             }
             : template
@@ -569,6 +571,7 @@ export default function Home() {
                                     <Slider id="rot" label="Rotation" val={L ? L.rot : 0} unit="°" min={-180} max={180} step={1} disabled={dis} onChange={(v) => setL("rot", v)} />
                                     <Slider id="opacity" label="Opacity" val={L ? L.opacity : 0} unit="%" min={5} max={100} step={1} disabled={dis} onChange={(v) => setL("opacity", v)} />
                                     <Slider id="spacing" label="Letter spacing" val={L ? L.spacing : 0} min={-5} max={40} step={1} disabled={dis} onChange={(v) => setL("spacing", v)} />
+                                    <Slider id="stroke-width-text" label="Stroke width" val={L ? (L.strokeWidth ?? 0) : 0} unit="%" min={0} max={20} step={0.5} disabled={dis} onChange={(v) => setL("strokeWidth", v)} />
                                 </div>
                                 <div>
                                     <div className="field-head"><span className="lbl">Text alignment</span></div>
@@ -603,14 +606,6 @@ export default function Home() {
                         {tab === "style" && (
                             <div className="tabpane" id="mms-pane-style" role="tabpanel" aria-labelledby="mms-tab-style">
                                 <div>
-                                    <div className="field-head"><span className="lbl">Text effect</span></div>
-                                    <div className="stylegrid">
-                                        {STYLES.map(([id, label]) => (
-                                            <button key={id} className="chip" type="button" aria-pressed={!!L && L.style === id} onClick={() => setL("style", id)}>{label}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
                                     <div className="field-head"><span className="lbl">Looks</span><span className="lbl nocase">Effect, font and colors in one tap</span></div>
                                     <div className="looks">
                                         {TEMPLATES.map((t) => (
@@ -618,37 +613,12 @@ export default function Home() {
                                         ))}
                                     </div>
                                 </div>
-                                <div>
-                                    <div className="field-head"><span className="lbl">Font</span></div>
-                                    <div className="fontgrid">
-                                        {FONTS.map(([name, wt]) => (
-                                            <button key={name} className="fontbtn" type="button" aria-pressed={!!L && L.font === name}
-                                                onClick={() => { const c = cur(); if (c) { c.font = name; loadFont(name, redraw); sync(); } }}>
-                                                <span className="sample" style={{ fontFamily: `'${name}',Impact,sans-serif`, fontWeight: wt }}>Aa</span>
-                                                <small>{name}</small>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="two">
-                                    <div>
-                                        <div className="field-head"><label className="lbl" htmlFor="color">Text color</label></div>
-                                        <div className="colorbox"><input type="color" id="color" value={L ? L.color : "#ffffff"} disabled={dis} onChange={(e) => setL("color", e.target.value)} /><span>{L ? L.color : ""}</span></div>
-                                    </div>
-                                    <div>
-                                        <div className="field-head"><label className="lbl" htmlFor="glow">Glow color</label></div>
-                                        <div className="colorbox"><input type="color" id="glow" value={L ? L.glow : "#06b6d4"} disabled={dis} onChange={(e) => setL("glow", e.target.value)} /><span>{L ? L.glow : ""}</span></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="field-head"><span className="lbl">Glow swatches</span></div>
-                                    <div className="swatches">
-                                        {GLOWS.map((c) => (
-                                            <button key={c} type="button" className="sw" style={{ background: c }} aria-label={"Glow " + c} onClick={() => setL("glow", c)} />
-                                        ))}
-                                    </div>
-                                </div>
-                                <Slider id="strength" label="Glow and stroke intensity" val={L ? L.strength : 0} unit="%" min={0} max={100} step={1} disabled={dis} onChange={(v) => setL("strength", v)} />
+                                <TextAppearanceControls
+                                    layer={L}
+                                    onChange={setL}
+                                    onFontChange={(font) => { const c = cur(); if (c) { c.font = font; loadFont(font, redraw); sync(); } }}
+                                    idPrefix="home-style"
+                                />
                             </div>
                         )}
 

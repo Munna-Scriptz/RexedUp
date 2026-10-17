@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { CloudUpload, ImagePlus, Plus, Upload, X } from "lucide-react";
-import { FONTS, GLOWS, STYLES } from "../../data/memeTemplates";
 import { loadFont, newLayer, renderScene } from "../../lib/meme/canvasEngine";
 import { useUploadMemeTemplateMutation } from "../../api";
+import { Slider } from "../../components/meme/EditorPrimitives";
+import TextAppearanceControls from "../../components/meme/TextAppearanceControls";
 import "../../styles/memeEditor.css";
 
 const AdminUpload = () => {
@@ -397,6 +398,8 @@ const AdminUpload = () => {
                                             <div className="field-head"><label className="lbl" htmlFor="admin-layer-opacity">Opacity</label><span className="val">{selectedLayer.opacity}%</span></div>
                                             <input id="admin-layer-opacity" type="range" min="5" max="100" step="1" value={selectedLayer.opacity} onChange={(event) => setLayer("opacity", Number(event.target.value))} />
                                         </div>
+                                        <Slider id="admin-layer-spacing" label="Letter spacing" val={selectedLayer.spacing ?? 0} min={-5} max={40} step={1} onChange={(value) => setLayer("spacing", value)} />
+                                        <Slider id="admin-layer-stroke-width" label="Stroke width" val={selectedLayer.strokeWidth ?? 0} unit="%" min={0} max={20} step={0.5} onChange={(value) => setLayer("strokeWidth", value)} />
                                         <div>
                                             <span className="lbl">Text alignment</span>
                                             <div className="admin-align-controls">
@@ -413,112 +416,12 @@ const AdminUpload = () => {
                                     </div>
                                 ) : (
                                     <div id="admin-editor-panel-style" role="tabpanel" aria-labelledby="admin-editor-tab-style" className="admin-layer-controls">
-                                        <div>
-                                            <div className="field-head"><span className="lbl">Text effects</span></div>
-                                            <div className="admin-style-grid">
-                                                {STYLES.map(([value, label]) => (
-                                                    <button key={value} type="button" className={`admin-style-choice effect-${value}`} aria-pressed={selectedLayer.style === value} onClick={() => setLayer("style", value)}>
-                                                        <span style={{ fontFamily: `'${selectedLayer.font}', Impact, sans-serif`, color: selectedLayer.color, textShadow: value === "glow" || value === "neon" ? `0 0 9px ${selectedLayer.glow}` : value === "classic" || value === "manga" ? "2px 2px 0 #000" : "none" }}>Aa</span>
-                                                        <small>{label}</small>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="field-head"><span className="lbl">Fonts</span></div>
-                                            <div className="admin-font-grid">
-                                                {FONTS.map(([font, weight]) => (
-                                                    <button key={font} type="button" aria-pressed={selectedLayer.font === font} onClick={() => setLayer("font", font)}>
-                                                        <span style={{ fontFamily: `'${font}', Impact, sans-serif`, fontWeight: weight }}>Aa</span>
-                                                        <small>{font}</small>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                            {/* Text Color */}
-                                            <label className="text-sm">
-                                                <div className="field-head"><span className="lbl">Text colors</span></div>
-                                                <div className="flex items-center gap-2 focus-within:border-blue-500">
-                                                    <input
-                                                        type="color"
-                                                        value={/^#[0-9A-Fa-f]{6}$/.test(selectedLayer.color)
-                                                            ? selectedLayer.color
-                                                            : "#ffffff"}
-                                                        onChange={(event) =>
-                                                            setLayer("color", event.target.value.toUpperCase())
-                                                        }
-                                                        className="h-9 w-10 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
-                                                        aria-label="Choose text color"
-                                                    />
-
-                                                    <input
-                                                        type="text"
-                                                        value={selectedLayer.color}
-                                                        onChange={(event) => {
-                                                            const value = event.target.value.toUpperCase();
-                                                            if (/^#?[0-9A-F]{0,6}$/.test(value)) {
-                                                                setLayer(
-                                                                    "color",
-                                                                    value && !value.startsWith("#")
-                                                                        ? `#${value}`
-                                                                        : value
-                                                                );
-                                                            }
-                                                        }}
-                                                        placeholder="#FFFFFF"
-                                                        maxLength={7}
-                                                        className="min-w-0 flex-1 bg-transparent font-mono text-sm uppercase text-gray-900 outline-none placeholder:text-gray-400"
-                                                        aria-label="Text color HEX code"
-                                                    />
-                                                </div>
-                                            </label>
-
-                                            {/* Glow Color */}
-                                            <label className="text-sm font-medium text-gray-700 ">
-                                                <div className="field-head"><span className="lbl">Glow colors</span></div>
-
-                                                <div className="flex items-center gap-2 focus-within:border-blue-500">
-                                                    <input
-                                                        type="color"
-                                                        value={/^#[0-9A-Fa-f]{6}$/.test(selectedLayer.glow)
-                                                            ? selectedLayer.glow
-                                                            : "#000000"}
-                                                        onChange={(event) =>
-                                                            setLayer("glow", event.target.value.toUpperCase())
-                                                        }
-                                                        className="h-9 w-10 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
-                                                        aria-label="Choose glow color"
-                                                    />
-
-                                                    <input
-                                                        type="text"
-                                                        value={selectedLayer.glow}
-                                                        onChange={(event) => {
-                                                            const value = event.target.value.toUpperCase();
-                                                            if (/^#?[0-9A-F]{0,6}$/.test(value)) {
-                                                                setLayer(
-                                                                    "glow",
-                                                                    value && !value.startsWith("#")
-                                                                        ? `#${value}`
-                                                                        : value
-                                                                );
-                                                            }
-                                                        }}
-                                                        placeholder="#000000"
-                                                        maxLength={7}
-                                                        className="min-w-0 flex-1 bg-transparent font-mono text-sm uppercase text-gray-900 outline-none placeholder:text-gray-400"
-                                                        aria-label="Glow color HEX code"
-                                                    />
-                                                </div>
-                                            </label>
-                                        </div>
-                                        <div>
-                                            <div className="field-head"><span className="lbl">Glow colors</span></div>
-                                            <div className="admin-glow-swatches" aria-label="Glow color swatches">
-                                                {GLOWS.map((color) => <button key={color} type="button" aria-label={`Set glow color ${color}`} style={{ background: color }} onClick={() => setLayer("glow", color)} />)}
-                                            </div>
-                                        </div>
+                                        <TextAppearanceControls
+                                            layer={selectedLayer}
+                                            onChange={setLayer}
+                                            onFontChange={(font) => setLayer("font", font)}
+                                            idPrefix="admin-style"
+                                        />
                                     </div>
                                 )}
                             </div>

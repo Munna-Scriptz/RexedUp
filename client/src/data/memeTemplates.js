@@ -13,7 +13,7 @@ import anIqCrow from "../assets/memeBg/anIqCrow.png";
 
 /* ---------- data ---------- */
 export const FONTS = [
-    ["Inter", 400], ["Anton", 400], ["Bebas Neue", 400], ["Bangers", 400], ["Comic Neue", 700], ["Tinos", 200], ["Permanent Marker", 400],
+    ["Roboto", 400], ["Inter", 400], ["Anton", 400], ["Bebas Neue", 400], ["Bangers", 400], ["Comic Neue", 700], ["Tinos", 200], ["Permanent Marker", 400],
     ["Orbitron", 900], ["Press Start 2P", 400], ["Russo One", 400], ["Black Ops One", 400],
     ["Creepster", 400], ["Pacifico", 400], ["Oswald", 700], ["Archivo Black", 400], ["Impact", 400],
 ];
