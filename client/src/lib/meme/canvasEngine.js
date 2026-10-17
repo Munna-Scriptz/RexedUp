@@ -71,8 +71,17 @@ function drawLine(c, L, str, y, size, sp, intensity, highlightLast) {
         c.fillStyle = glow; c.save(); c.translate(size * .06, size * .06); drawStr(c, str, y, sp, false, L.align || "left"); c.restore();
         reset(); stroke("#000", size * (.1 + intensity * .08)); fill(col);
     } else if (st === "outline") {
-        c.shadowColor = glow; c.shadowBlur = intensity * size * .4; stroke(col, size * .045);
-        reset(); stroke(col, size * .045);
+         c.save();
+    c.shadowColor = glow || col;
+    c.shadowBlur = intensity * size * 0.2;
+    c.strokeStyle = col || "#ffffff";
+    c.lineWidth = Math.max(1, size * 0.06);
+    c.lineJoin = "round";
+
+    drawStr(c, str, y, sp, true, L.align || "left");
+
+    c.restore();
+
     } else if (st === "gradient") {
         const gr = c.createLinearGradient(0, y - size * .5, 0, y + size * .5);
         gr.addColorStop(0, col); gr.addColorStop(1, glow);
@@ -84,6 +93,90 @@ function drawLine(c, L, str, y, size, sp, intensity, highlightLast) {
         c.save(); c.globalAlpha *= .85; c.translate(d, 0); fill(glow); c.restore();
         c.shadowColor = glow; c.shadowBlur = intensity * size * .12; fill(col); reset();
     } else if (st === "plain") {
+        fill(col);
+
+    } else if (st === "impact") {
+        // Classic bold meme text with heavy black outline
+        c.lineJoin = "round";
+        stroke("#000", size * .16);
+        reset();
+        fill(col);
+
+    } else if (st === "comic") {
+        // White outer border with a dark comic outline
+        c.lineJoin = "round";
+        stroke("#fff", size * .16);
+        reset();
+        stroke("#111", size * .09);
+        reset();
+        fill(col);
+
+    } else if (st === "threeD") {
+        // Deep 3D extruded text
+        c.save();
+        c.fillStyle = "#111";
+        for (let i = 1; i <= 6; i++) {
+            c.save();
+            c.translate(i * size * .012, i * size * .012);
+            drawStr(c, str, y, sp, false, L.align || "left");
+            c.restore();
+        }
+        c.restore();
+        stroke("#000", size * .07);
+        reset();
+        fill(col);
+
+    } else if (st === "fire") {
+        // Fiery orange and yellow text
+        c.shadowColor = "#ff4500";
+        c.shadowBlur = intensity * size * .45;
+        stroke("#7f1600", size * .13);
+        reset();
+        stroke("#ff4500", size * .035);
+        reset();
+        fill("#ffb52e");
+        stroke("#fff0a0", size * .015);
+        reset();
+
+    } else if (st === "retro") {
+        // Retro arcade / 80s lettering
+        c.shadowColor = "#ff00cc";
+        c.shadowBlur = intensity * size * .2;
+        stroke("#34106b", size * .16);
+        reset();
+        c.save();
+        c.translate(0, -size * .025);
+        fill("#ffe66d");
+        c.restore();
+
+    } else if (st === "emboss") {
+        // Raised lettering with light and dark edges
+        c.save();
+        c.shadowColor = "rgba(255,255,255,.7)";
+        c.shadowOffsetX = -size * .025;
+        c.shadowOffsetY = -size * .025;
+        c.shadowBlur = size * .025;
+        fill(col);
+        c.restore();
+
+        c.save();
+        c.shadowColor = "rgba(0,0,0,.8)";
+        c.shadowOffsetX = size * .025;
+        c.shadowOffsetY = size * .025;
+        c.shadowBlur = size * .025;
+        fill(col);
+        c.restore();
+        reset();
+
+    } else if (st === "sticker") {
+        // Bold sticker-style lettering with a thick white border
+        c.lineJoin = "round";
+        stroke("rgba(0,0,0,.65)", size * .22);
+        reset();
+        stroke("#fff", size * .16);
+        reset();
+        stroke("#fff", size * .10);
+        reset();
         fill(col);
     }
     reset();

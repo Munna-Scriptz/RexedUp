@@ -13,13 +13,20 @@ import anIqCrow from "../assets/memeBg/anIqCrow.png";
 
 /* ---------- data ---------- */
 export const FONTS = [
-    ["Roboto", 400], ["Inter", 400], ["Anton", 400], ["Bebas Neue", 400], ["Bangers", 400], ["Comic Neue", 700], ["Tinos", 200], ["Permanent Marker", 400],
+    ["Roboto", 400], ["Poppins", 400], ["Open Sans", 400], ["Inter", 400], ["Anton", 400], ["Bebas Neue", 400],
+    ["Bangers", 400], ["Comic Neue", 700], ["Tinos", 200], ["Permanent Marker", 400],
     ["Orbitron", 900], ["Press Start 2P", 400], ["Russo One", 400], ["Black Ops One", 400],
     ["Creepster", 400], ["Pacifico", 400], ["Oswald", 700], ["Archivo Black", 400], ["Impact", 400],
 ];
 export const FONT_W = {};
 FONTS.forEach((f) => { FONT_W[f[0]] = f[1]; });
-export const STYLES = [["glow", "Glow"], ["neon", "Neon"], ["classic", "Classic"], ["manga", "Manga"], ["outline", "Outline"], ["gradient", "Gradient"], ["glitch", "Glitch"], ["plain", "Plain"]];
+export const STYLES = [
+    ["plain", "Plain"], ["manga", "Manga"], ["comic", "Comic"], ["classic", "Classic"], ["emboss", "Emboss"],
+    ["fire", "Fire"], ["gradient", "Gradient"], ["glow", "Glow"],
+    ["neon", "Neon"], ["glitch", "Glitch"],
+    ["impact", "Impact Meme"], ["threeD", "3D Text"],
+    ["retro", "Retro Arcade"], ["sticker", "Sticker"], ["outline", "Outline"],
+];
 export const PHRASES = ["HELL YEAH", "sybau", "Did you say potential", "wtf...\nis this?", "Nah, I'd win", "BRUH", "Absolute Cinema 🖐️🗿🤚", "With this treasure...", "What a\n larp"];
 export const GLOWS = ["#06b6d4", "#38bdf8", "#3b82f6", "#a855f7", "#ff2d95", "#ff4d4d", "#ffb020", "#a3e635", "#ffffff"];
 export const DEFAULT_TEXT_POSITIONS = [{ x: .05, y: .18 }];

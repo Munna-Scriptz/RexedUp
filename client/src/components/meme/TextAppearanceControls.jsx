@@ -37,7 +37,7 @@ export default function TextAppearanceControls({ layer, onChange, onFontChange, 
                             onClick={() => onChange("style", id)}
                         >
                             <span style={{
-                                fontFamily: `'${value("font", "Anton")}', Impact, sans-serif`,
+                                fontFamily: `Poppins`,
                                 color: value("color", "#ffffff"),
                                 textShadow: id === "glow" || id === "neon"
                                     ? `0 0 9px ${value("glow", "#06b6d4")}`

@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
+import { LoaderCircle, AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, Copy, Trash2, AlignVerticalJustifyEnd, AlignHorizontalJustifyCenter, CaseUpper, ArrowUpToLine, Maximize2 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { DEFAULT_TEXT_POSITIONS, FONTS, GLOWS, PHRASES, STYLES, TEMPLATES } from "../data/memeTemplates.js";
 import { encodeGIF } from "../lib/meme/gifEncoder.js";
@@ -9,7 +10,6 @@ import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
 import Navbar from "../components/common/Navbar.jsx";
 import ImageWithLoader from "../components/ui/ImageWithLoader.jsx";
-import { LoaderCircle } from "lucide-react";
 
 /* ===================================================================== */
 export default function Home() {
@@ -197,11 +197,6 @@ export default function Home() {
         S.sel = S.layers.length ? S.layers[S.layers.length - 1].id : null; sync();
     };
     const duplicate = () => { const c = cur(); if (!c) return; const d = newLayer(S, c); d.y = Math.min(.95, c.y + .08); d.x = Math.min(.95, c.x + .02); S.layers.push(d); S.sel = d.id; sync(); };
-    const moveLayer = (dir) => {
-        const c = cur(), i = S.layers.indexOf(c), j = i + dir;
-        if (!c || j < 0 || j >= S.layers.length) return;
-        S.layers.splice(i, 1); S.layers.splice(j, 0, c); sync();
-    };
     const place = (p) => {
         const c = cur(); if (!c) return;
         if (p === "top") c.y = .14; else if (p === "middle") c.y = .5; else if (p === "bottom") c.y = .84; else c.x = .5;
@@ -414,6 +409,26 @@ export default function Home() {
     };
     const dis = !L;
 
+    useEffect(() => {
+        const strip = document.querySelector(".strip");
+        if (!strip) return;
+
+        const handleWheel = (e) => {
+            if (strip.scrollWidth <= strip.clientWidth) return;
+
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                strip.scrollLeft += e.deltaY;
+            }
+        };
+
+        strip.addEventListener("wheel", handleWheel, { passive: false });
+
+        return () => {
+            strip.removeEventListener("wheel", handleWheel);
+        };
+    }, [tplList]);
+
     return (
         <div className="mms">
             <Navbar surprise={surprise} />
@@ -527,12 +542,23 @@ export default function Home() {
                             </button>
                             <div className="strip" role="list">
                                 {tplList.map((t) => (
-                                    <button key={t.id} type="button" role="listitem" className="tpl" title={t.name}
-                                        aria-pressed={S.bg.kind === "tpl" && S.bg.id === t.id} onClick={() => pickTemplate(t)}>
-                                        <Thumb t={t} /><span>{t.name}</span>
+                                    <button
+                                        key={t.id}
+                                        type="button"
+                                        role="listitem"
+                                        className="tpl"
+                                        title={t.name}
+                                        aria-pressed={S.bg.kind === "tpl" && S.bg.id === t.id}
+                                        onClick={() => pickTemplate(t)}
+                                    >
+                                        <Thumb t={t} />
+                                        <span>{t.name}</span>
                                     </button>
                                 ))}
-                                {!tplList.length && <div className="empty">No match. Try neon, manga or shadow.</div>}
+
+                                {!tplList.length && (
+                                    <div className="empty">No match. Try neon, manga or shadow.</div>
+                                )}
                             </div>
                         </div>
 
@@ -550,10 +576,37 @@ export default function Home() {
                                         ))}
                                     </div>
                                     <div className="row" style={{ marginTop: 8 }}>
-                                        <button className="btn sm" type="button" disabled={dis} onClick={duplicate}>Duplicate</button>
-                                        <button className="btn sm" type="button" disabled={dis} onClick={() => moveLayer(1)}>Bring forward</button>
-                                        <button className="btn sm" type="button" disabled={dis} onClick={() => moveLayer(-1)}>Send back</button>
-                                        <button className="btn sm danger" type="button" disabled={dis} onClick={deleteLayer}>Delete</button>
+                                        <button
+                                            className="btn sm flex items-center justify-center gap-2"
+                                            type="button"
+                                            disabled={dis}
+                                            onClick={duplicate}
+                                        >
+
+                                            <Copy size={15} />
+
+                                            Duplicate
+
+                                        </button>
+
+
+
+                                        <button
+
+                                            className="btn sm danger flex items-center justify-center gap-2"
+
+                                            type="button"
+
+                                            disabled={dis}
+                                            onClick={deleteLayer}
+
+                                        >
+
+                                            <Trash2 size={15} />
+
+                                            Delete
+
+                                        </button>
                                     </div>
                                 </div>
                                 <div>
@@ -576,26 +629,63 @@ export default function Home() {
                                 <div>
                                     <div className="field-head"><span className="lbl">Text alignment</span></div>
                                     <div className="row">
-                                        {["left", "center", "right"].map((align) => (
-                                            <button key={align} className="chip" type="button" aria-pressed={!!L && (L.align || "left") === align}
-                                                onClick={() => setL("align", align)}>{align[0].toUpperCase() + align.slice(1)}</button>
+                                        {[
+                                            { id: "left", label: "Left", Icon: AlignLeft },
+                                            { id: "center", label: "Center", Icon: AlignCenter },
+                                            { id: "right", label: "Right", Icon: AlignRight },
+                                        ].map(({ id, label, Icon }) => (
+                                            <button
+                                                key={id}
+                                                className="chip flex items-center justify-center gap-2"
+                                                type="button"
+                                                aria-label={label}
+                                                title={label}
+                                                aria-pressed={!!L && (L.align || "left") === id}
+                                                onClick={() => setL("align", id)}
+                                            >
+                                                <Icon size={16} strokeWidth={1.8} />
+                                                <span>{label}</span>
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
                                 <div>
                                     <div className="field-head"><span className="lbl">Place</span></div>
                                     <div className="row">
-                                        <button className="chip" type="button" onClick={() => place("top")}>Top</button>
-                                        <button className="chip" type="button" onClick={() => place("middle")}>Middle</button>
-                                        <button className="chip" type="button" onClick={() => place("bottom")}>Bottom</button>
-                                        <button className="chip" type="button" onClick={() => place("center")}>Center horizontally</button>
+                                        <button className="chip flex items-center justify-center gap-2" type="button" onClick={() => place("top")}>
+                                            <AlignVerticalJustifyStart size={16} />
+                                            Top
+                                        </button>
+
+                                        <button className="chip flex items-center justify-center gap-2" type="button" onClick={() => place("bottom")}>
+                                            <AlignVerticalJustifyEnd size={16} />
+                                            Bottom
+                                        </button>
+
+                                        <button className="chip flex items-center justify-center gap-2" type="button" onClick={() => place("center")}>
+                                            <AlignHorizontalJustifyCenter size={16} />
+                                            Center horizontally
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="sep" />
                                 <div className="toggles">
-                                    {[["allCaps", "All caps"], ["shrinkAbove", "Shrink lines above the last one"], ["fit", "Auto-fit to image width"]].map(([k, label]) => (
-                                        <label key={k} className="toggle">{label}
-                                            <input type="checkbox" checked={L ? !!L[k] : false} disabled={dis} onChange={(e) => setL(k, e.target.checked)} />
+                                    {[
+                                        ["allCaps", "All caps", CaseUpper],
+                                        ["shrinkAbove", "Shrink lines above the last one", ArrowUpToLine],
+                                        ["fit", "Auto-fit to image width", Maximize2],
+                                    ].map(([k, label, Icon]) => (
+                                        <label key={k} className="toggle">
+                                            <span className="flex items-center gap-2">
+                                                <Icon size={16} strokeWidth={1.8} />
+                                                {label}
+                                            </span>
+                                            <input
+                                                type="checkbox"
+                                                checked={L ? !!L[k] : false}
+                                                disabled={dis}
+                                                onChange={(e) => setL(k, e.target.checked)}
+                                            />
                                         </label>
                                     ))}
                                 </div>
