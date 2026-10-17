@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Thumb } from "./EditorPrimitives.jsx";
 import { useGetMemeTemplatesQuery } from "../../api";
+import { LoaderCircle } from "lucide-react";
 
 export default function TemplatePickerModal({ templates, selectedId, onClose, onSelect }) {
     const [search, setSearch] = useState("");
@@ -60,9 +61,7 @@ export default function TemplatePickerModal({ templates, selectedId, onClose, on
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder="Search all templates…"
                         aria-label="Search all templates"
-                        autoFocus
                     />
-                    {isLoading && <p className="template-modal-status">Loading saved templates…</p>}
                     {isError && <p className="template-modal-status error" role="alert">Saved templates could not be loaded. Built-in templates are still available.</p>}
                     <div className="template-modal-grid" role="list" aria-label="All templates">
                         {visibleTemplates.map((template) => (
@@ -81,8 +80,15 @@ export default function TemplatePickerModal({ templates, selectedId, onClose, on
                                 <span>{template.name}</span>
                             </button>
                         ))}
+
                         {!visibleTemplates.length && <p className="template-modal-empty">No templates match “{search}”.</p>}
                     </div>
+                    {isLoading && (
+                        <div className="flex items-center justify-center gap-2 py-3 text-sm text-text-muted">
+                            <LoaderCircle size={16} className="animate-spin" />
+                            <span>Loading saved templates...</span>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>

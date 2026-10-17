@@ -26,6 +26,20 @@
 
   /* Blue → Cyan */
   --color-gradient: linear-gradient(135deg, #2563eb, #06b6d4);
+
+  /* -------------- Animates --------------  */
+}
+.animate-spin-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 omg {
   --color-bg: #070b12;

@@ -275,7 +275,6 @@
     .template-modal-header h2 { font-size: 16px; }
     .template-modal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
   }
-  @media (prefers-reduced-motion: reduce) { &, & * { animation: none !important; transition: none !important; } }
 }
 
 @keyframes template-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
