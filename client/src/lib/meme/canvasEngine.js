@@ -6,7 +6,7 @@ export function newLayer(S, over) {
     const template = S.bg && TEMPLATES.find((t) => t.id === S.bg.id);
     const positions = template && template.textPositions;
     const position = (positions && positions[S.layers.length]) || DEFAULT_TEXT_POSITIONS[S.layers.length % DEFAULT_TEXT_POSITIONS.length];
-    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: template ? template.size ?? 14 : 14, color: "#ffffff", glow: "#06b6d4", strength: 80, strokeColor: "#000000", strokeOpacity: 0, strokeWidth: 0, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, highlightLast: null, fit: true, _b: null };
+    const L = { id: S.nextId++, text: "HELL YEAH", font: "Anton", size: template ? template.size ?? 14 : 14, color: "#ffffff", glow: "#06b6d4", strength: 80, strokeColor: "#000000", strokeOpacity: 100, strokeWidth: template ? template.strokeWidth : 0, style: "glow", align: template ? template.textAlignment : "left", x: position.x, y: position.y, rot: 0, opacity: 100, spacing: 0, allCaps: template ? template.allCaps : true, shrinkAbove: template ? template.shrinkAbove : true, highlightLast: null, fit: true, _b: null };
     for (const k in over) L[k] = over[k];
     return L;
 }

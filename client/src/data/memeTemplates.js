@@ -157,6 +157,7 @@ export const TEMPLATES = [
         shrinkAbove: false,
         textAlignment: "left",
         image: meAndMy,
+        strokeWidth: 2,
         textPositions: [{ x: 0.0851, y: 0.4343 }],
     },
     {
