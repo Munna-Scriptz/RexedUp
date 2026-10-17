@@ -7,9 +7,9 @@ const ImageWithLoader = ({ src, alt = "", className = "" }) => {
 
     return (
         <div className={`relative overflow-hidden ${className}`}>
-            {!loading && !error && (
+            {loading && !error && (
                 <div
-                    className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-bg/95"
+                    className="absolute inset-0 z-10 flex items-center justify-center bg-bg/95"
                     role="status"
                     aria-label="Loading image"
                 >

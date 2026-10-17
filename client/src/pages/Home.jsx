@@ -8,6 +8,7 @@ import TemplatePickerModal from "../components/meme/TemplatePickerModal.jsx";
 import "../styles/memeEditor.css";
 import Navbar from "../components/common/Navbar.jsx";
 import ImageWithLoader from "../components/ui/ImageWithLoader.jsx";
+import { LoaderCircle } from "lucide-react";
 
 /* ===================================================================== */
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
     const [positionTool, setPositionTool] = useState(false);
     const [pickedPosition, setPickedPosition] = useState(null);
     const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+    const [canvasLoading, setCanvasLoading] = useState(true);
 
     // Mutable engine state lives in a ref; React re-renders the controls via force().
     const R = useRef(null);
@@ -35,7 +37,7 @@ export default function Home() {
         };
         const first = newLayer(S, { text: TEMPLATES[0].text, ...TEMPLATES[0].look });
         S.layers.push(first); S.sel = first.id;
-        R.current = { S, base: null, fin: null, ctx: null, raf: 0, queued: false, exporting: false, busy: false, ptrs: {}, dragging: false, lastP: null, pinch: null, fxQ: false, toastT: 0, resUrl: null, resBlob: null, lastTap: null, tapCandidate: null };
+        R.current = { S, base: null, fin: null, ctx: null, raf: 0, queued: false, exporting: false, busy: false, ptrs: {}, dragging: false, lastP: null, pinch: null, fxQ: false, toastT: 0, resUrl: null, resBlob: null, lastTap: null, tapCandidate: null, baseLoadId: 0 };
     }
     const r = R.current, S = r.S;
     const cur = () => S.layers.find((l) => l.id === S.sel) || null;
@@ -82,6 +84,8 @@ export default function Home() {
     };
     const queueFx = () => { if (r.fxQ) return; r.fxQ = true; requestAnimationFrame(() => { r.fxQ = false; applyFx(); }); };
     const rebuildBase = async () => {
+        const loadId = ++r.baseLoadId;
+        setCanvasLoading(true);
         let w, h;
         if (S.bg.kind === "img" && S.bg.img) {
             const im = S.bg.img, sc = Math.min(1, 1280 / Math.max(im.naturalWidth, im.naturalHeight));
@@ -92,16 +96,20 @@ export default function Home() {
             const imageSrc = S.bg.image || t?.image;
             if (!imageSrc) {
                 toast("Template image is unavailable.");
+                if (loadId === r.baseLoadId) setCanvasLoading(false);
                 return;
             }
             let image;
             try {
                 image = await loadTemplateImage(imageSrc);
             } catch {
-                toast("Template image could not be loaded.");
+                if (loadId === r.baseLoadId) {
+                    toast("Template image could not be loaded.");
+                    setCanvasLoading(false);
+                }
                 return;
             }
-            if (S.bg.kind !== "tpl" || (S.bg.id !== t?.id && S.bg.image !== imageSrc)) return;
+            if (loadId !== r.baseLoadId || S.bg.kind !== "tpl" || (S.bg.id !== t?.id && S.bg.image !== imageSrc)) return;
             const scale = Math.min(1, 1280 / Math.max(image.naturalWidth, image.naturalHeight));
             w = Math.max(2, Math.round(image.naturalWidth * scale));
             h = Math.max(2, Math.round(image.naturalHeight * scale));
@@ -109,6 +117,7 @@ export default function Home() {
             r.base.getContext("2d").drawImage(image, 0, 0, w, h);
         }
         applyFx();
+        if (loadId === r.baseLoadId) setCanvasLoading(false);
     };
 
     /* ----- toast / results / export ----- */
@@ -162,8 +171,22 @@ export default function Home() {
     };
     const addLayer = () => {
         const c = cur();
-        const l = newLayer(S, { text: "NEW TEXT", glow: c ? c.glow : "#06b6d4", font: c ? c.font : "Anton", style: c ? c.style : "glow" });
+        const template = TEMPLATES.find((t) => t.id === S.bg.id);
+        const inheritedStyle = c
+            ? {
+                font: c.font, size: c.size, color: c.color, glow: c.glow, strength: c.strength,
+                style: c.style, opacity: c.opacity, spacing: c.spacing, allCaps: c.allCaps,
+                shrinkAbove: c.shrinkAbove, highlightLast: c.highlightLast, fit: c.fit,
+            }
+            : template
+                ? {
+                    ...template.look, size: template.size ?? 14, align: template.textAlignment,
+                    allCaps: template.allCaps, shrinkAbove: template.shrinkAbove,
+                }
+                : {};
+        const l = newLayer(S, { ...inheritedStyle, text: "NEW TEXT", x: .5, y: .5, rot: 0, align: "center" });
         S.layers.push(l); S.sel = l.id; S.dirty = true; sync();
+        loadFont(l.font, redraw);
         setTimeout(() => { if (txtRef.current) { txtRef.current.focus(); txtRef.current.select(); } }, 0);
     };
     const deleteLayer = () => {
@@ -243,9 +266,17 @@ export default function Home() {
     };
     const loadImageFile = (file) => {
         if (!file || !/^image\//.test(file.type)) { toast("That file is not an image."); return; }
+        const loadId = ++r.baseLoadId;
+        setCanvasLoading(true);
         const url = URL.createObjectURL(file), im = new Image();
-        im.onload = () => { S.bg = { kind: "img", id: "custom", img: im }; rebuildBase(); force(); toast("Image loaded"); };
-        im.onerror = () => toast("Could not read that image. Try a PNG or JPG.");
+        im.onload = () => {
+            if (loadId !== r.baseLoadId) return;
+            S.bg = { kind: "img", id: "custom", img: im }; rebuildBase(); force(); toast("Image loaded");
+        };
+        im.onerror = () => {
+            if (loadId !== r.baseLoadId) return;
+            toast("Could not read that image. Try a PNG or JPG."); setCanvasLoading(false);
+        };
         im.src = url;
     };
     /* ----- pointer interaction ----- */
@@ -396,9 +427,23 @@ export default function Home() {
                                     <span>Drag anywhere on the image to move the selected text. Pinch with two fingers to resize and rotate.</span>
                                 </div>
                             </div>
-                            <div className="viewport" aria-label="Meme canvas">
-                                <canvas ref={cvRef} className={"cv" + (positionTool ? " position-picking" : "")} width={1280} height={720}
-                                    onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
+                            <div className="viewport relative" aria-label="Meme canvas">
+                                {canvasLoading && (
+                                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg">
+                                        <LoaderCircle className="h-7 w-7 animate-spin text-cyan-400" />
+                                    </div>
+                                )}
+
+                                <canvas
+                                    ref={cvRef}
+                                    className={"cv" + (positionTool ? " position-picking" : "")}
+                                    width={1280}
+                                    height={720}
+                                    onPointerDown={onDown}
+                                    onPointerMove={onMove}
+                                    onPointerUp={onUp}
+                                    onPointerCancel={onUp}
+                                />
                             </div>
                             <div className="mobile-text-editor">
                                 <label className="lbl" htmlFor="mobile-txt">Edit text <span className="lbl nocase">Double-tap text on the image to type</span></label>
